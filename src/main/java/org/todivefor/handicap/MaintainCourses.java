@@ -205,6 +205,7 @@ public class MaintainCourses extends javax.swing.JPanel
         btnUpdate.setVisible(false);                    //      to
         btnDelete.setVisible(false);                    //          initial state
         HandicapMain.resetTitle();                      // Set title in frame
+        HandicapMain.lastCard = HandicapMain.MAINMENU;      // Force MAINMENU
         HandicapMain.cards.show(getParent(), 
                 (String) HandicapMain.returnStack.pop());   // Return whence we came
     }//GEN-LAST:event_btnAddCourseExitActionPerformed

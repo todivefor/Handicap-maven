@@ -36,7 +36,7 @@ import org.todivefor.string.utils.StringUtils;
 public class DisplayScores extends javax.swing.JPanel
 {
     
-    public static boolean scoreEditingAllowed = false;          // Don't allow edit on tournament display
+    public static boolean scoreEditingAllowed = true;           // Don't allow edit on tournament display
     public static boolean scoreDataChanged = true;              // Need to recalc index?
     public static boolean tournament = false;                   // Displaying tournament scores
 
@@ -194,36 +194,41 @@ public class DisplayScores extends javax.swing.JPanel
         scoreEditingAllowed = true;                         // Allow editing of scores
         refreshScoreTable(HandicapMain.scoreTableName);     // Refresh scores table
         HandicapMain.resetTitle();                          // Set title in frame
+        HandicapMain.lastCard = HandicapMain.MAINMENU;      // Force MAINMENU
         HandicapMain.cards.show(getParent(), 
-                (String) HandicapMain.returnStack.pop());   // Show MAINMENU
+            (String) HandicapMain.returnStack.pop());   // Show MAINMENU
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void tableDisplayScoresMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_tableDisplayScoresMouseClicked
     {//GEN-HEADEREND:event_tableDisplayScoresMouseClicked
         HandicapMain.setFrameTitle("Handicap Edit Score - " + HandicapMain.userName); // Set title					//  <date change>
-            if (!scoreEditingAllowed)		// Are we in an archive / tournament display
-            {
-                JOptionPane.showMessageDialog(null, "Editing is not allowed");  // Yes - display message
-                return;                                                         // Return
-            }
-
-            int row = tableDisplayScores.getSelectedRow();                  // Get selected row
-            String DATE_ = tableDisplayScores.getModel().getValueAt(row,
-                    HandicapMain.DATE_POS).toString();                      // Date (mm/dd/yy) from display
-            String ymdDate = AddScores.convertTableDate(DATE_);             // Convert display date to table date
+        if (!scoreEditingAllowed)		// Are we in an archive / tournament display
+        {
+            JOptionPane.showMessageDialog(null, "Editing is not allowed");  // Yes - display message
+            return;                                                         // Return
+        }
+            
+        String duplicateID = "";                                        // Duplicate IDer (T00:01)
+        int duplicateCount = 0;                                         // Duplicate counter
+        Boolean tryDuplicate = true;
+        int row = tableDisplayScores.getSelectedRow();                  // Get selected row
+        String DATE_ = tableDisplayScores.getModel().getValueAt(row,
+                HandicapMain.DATE_POS).toString();                      // Date (mm/dd/yy) from display
+        String ymdDate = AddScores.convertTableDate(DATE_);             // Convert display date to table date
+        while (tryDuplicate)
+        {
             // MM/dd/yy -> yyyy-MM-dd
 
 //          Select * from SCORE_TBL where DateField = yyyyMMdd				
             String query = "Select * from " + HandicapMain.scoreTableName
-                    + " where DateField = '" + ymdDate + "'";
+                    + " where DateField = '" + ymdDate + duplicateID + "'";
             //	    String query = "Select * from " + scoreTableName + " where Date = '"+DATE_+"'";
             try (PreparedStatement pst = SQLiteConnection.connection.
                     prepareStatement(query);                            // PST with resources
                 ResultSet rs = pst.executeQuery())                      // Execute query
 
             {
-//  TODO    Handle multiple dates (if (rs.next())
-//            while (rs.next())
+//  TODO    Multiple scores for same day are deleted in order entered
                 if (rs.next())                                          // Found date?
                 {
                     saveDate = rs.getString("DateField");               // Save off date in case we are changing it
@@ -286,10 +291,17 @@ public class DisplayScores extends javax.swing.JPanel
                     });
 
 //						MiscMethods.setTabFocus(tabbedPane, DISPLAYSCORESINDEX, ADDSCORESINDEX);
+                    tryDuplicate = false;                                           // Found record quit
                 }
                 else                                                                // Date not found
                 {
                     System.out.println("Must be an auto-incremented date record");  // Must be an auto incremented date
+                    duplicateCount++;                                               // Increment duplicates
+                    duplicateID = "T00:0" + duplicateCount;                         // Turn on duplicate ID
+                    if (duplicateCount > 3)                                         // Allow only 3 for same day
+                    {
+                        tryDuplicate = false;                                       // Get out
+                    }
                 }
                 // Close result set
                 // Close PST
@@ -299,6 +311,7 @@ public class DisplayScores extends javax.swing.JPanel
                 e1.printStackTrace();                                               // Print stacktrace
             }
 //				AddScores.textFieldScore.requestFocusInWindow();		// set focus to score
+        }                                                                           // End while
             HandicapMain.returnStack.push(HandicapMain.DISPLAYSCORES);              // push DISPLAYSCORES onto returnStack
             HandicapMain.cards.show(getParent(), "AddScores");
     }//GEN-LAST:event_tableDisplayScoresMouseClicked
@@ -421,7 +434,16 @@ public class DisplayScores extends javax.swing.JPanel
 /*
  * 			Display date mm/dd/yy
  */
-        String query = "select strftime('%m/%d/', DateField) || substr(strftime('%Y', DateField),3, 2) as Date,"
+//  TODO    Add duplicate ID to process multiple scores on same day
+        String query = "select strftime('%m/%d/', DateField) || "
+                + "substr(strftime('%Y', DateField),3, 2) as Date,"
+/*
+                This code adds duplicate ID -00, -01, etc to date
+                Comment above line, include these 2
+                
+                + "substr(strftime('%Y', DateField),3, 2) || "
+                + "substr(strftime('-%M', DateField),1,3) as Date,"
+*/
                 + " Course as 'Course Name',"
                 + " T, Score, U,"
                 + "Rating, Slope,"
@@ -492,7 +514,7 @@ public class DisplayScores extends javax.swing.JPanel
  */
 //			int preferredWidth = 0;
 //			Force some widths (Date, T, Score, U)
-        int width = 90;                         //		Date column
+        int width = 95;                         //		Date column
         DisplayScores.tableDisplayScores.getColumnModel().getColumn(HandicapMain.DATE_POS).setMinWidth(width);
         DisplayScores.tableDisplayScores.getColumnModel().getColumn(HandicapMain.DATE_POS).setMaxWidth(width);
         DisplayScores.tableDisplayScores.getColumnModel().getColumn(HandicapMain.DATE_POS).setPreferredWidth(width);

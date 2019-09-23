@@ -46,11 +46,17 @@ import org.todivefor.string.utils.StringUtils;
  *      Moved most of initialization out constructor, left L&F
  *      Converted to maven
  * 
+ * 0.1.4
+ *      Multi player support (Preferrences)
+ *      Fix some where to return issues
+ *      Changed scoreEditingAllowed to true initially
+ *      Added print returnStack in debug menu for debugging where to return
+ *      Fixed add / delete scores for same day
  */
 public class HandicapMain extends JFrame 
 {
-        public static final String VERSION = "0.1.3";               // Application version used in "About"
-        public static final String REVISIONDATE = "05/20/2019";     // Revision date
+        public static final String VERSION = "0.1.4";               // Application version used in "About"
+        public static final String REVISIONDATE = "09/23/2019";     // Revision date
         public static final boolean TEST = false;                    // use test preferences
 /*
  * 	Components referenced from other classes
@@ -111,14 +117,14 @@ public class HandicapMain extends JFrame
 	
 // 	SCORE table column position constants
 	
-	final static int DATE_POS = 0;				// Date column
-	final static int COURSE_POS = 1;			// Course column
-	final static int T_POS = 2;				// T column
-	final static int SCORE_POS = 3;				// Score column
-	final static int U_POS = 4;				// U column
-	final static int RATING_POS = 5;			// Rating column
-	final static int SLOPE_POS = 6;				// Slope column
-	final static int DIFFERENTIAL_POS = 7;			// Differential column
+	final static int DATE_POS = 0;                              // Date column
+	final static int COURSE_POS = 1;                            // Course column
+	final static int T_POS = 2;                                 // T column
+	final static int SCORE_POS = 3;                             // Score column
+	final static int U_POS = 4;                                 // U column
+	final static int RATING_POS = 5;                            // Rating column
+	final static int SLOPE_POS = 6;                             // Slope column
+	final static int DIFFERENTIAL_POS = 7;                      // Differential column
 	
 	// Miscellaneous constants
 	
@@ -228,6 +234,7 @@ public class HandicapMain extends JFrame
         mntmRemoveDbPath = new javax.swing.JMenuItem();
         mntmRemoveNode = new javax.swing.JMenuItem();
         mntmRemoveLF = new javax.swing.JMenuItem();
+        jMenuItem1 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBounds(new java.awt.Rectangle(200, 0, 750, 700));
@@ -415,6 +422,16 @@ public class HandicapMain extends JFrame
         });
         mnDebug.add(mntmRemoveLF);
 
+        jMenuItem1.setText("Print returnStack");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        mnDebug.add(jMenuItem1);
+
         jMenuBar1.add(mnDebug);
 
         setJMenuBar(jMenuBar1);
@@ -422,14 +439,14 @@ public class HandicapMain extends JFrame
     
     private void mntmPreferrencesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmPreferrencesActionPerformed
     {//GEN-HEADEREND:event_mntmPreferrencesActionPerformed
-//        if (HandicapMain.returnStack.empty())                       // Come frome place?
-//        {
-//            HandicapMain.returnStack.push(HandicapMain.MAINMENU);   // No, push MAINMENU
-//        }
-//        else                                                        // Yes
-//        {     
-        returnStack.push(lastCard);                                 // Where we came from
-//        }
+        if (HandicapMain.returnStack.empty())                       // Come frome place?
+        {
+            HandicapMain.returnStack.push(HandicapMain.MAINMENU);   // No, push MAINMENU
+        }
+        else                                                        // Yes
+        {     
+            returnStack.push(lastCard);                             // Where we came from
+        }
         setFrameTitle("Handicap Preferences - " + userName);        // Set frame title
         cards.show(getContentPane(), PREFERRENCES);                 // Show preferences card
     }//GEN-LAST:event_mntmPreferrencesActionPerformed
@@ -961,6 +978,11 @@ public class HandicapMain extends JFrame
                 Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
             }
     }//GEN-LAST:event_mntmRemoveLFActionPerformed
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenuItem1ActionPerformed
+    {//GEN-HEADEREND:event_jMenuItem1ActionPerformed
+        System.out.println(HandicapMain.returnStack.toString().replaceAll("\\[", "").replaceAll("]", ""));
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
    
     /*
     Beginning of common methods within HandicapMain class
@@ -1196,8 +1218,11 @@ public class HandicapMain extends JFrame
         add(ds, DISPLAYSCORES);                         // Add display scores to card layout
         AddScores as = new AddScores();                 // Add scores class
         add(as, ADDSCORES);                             // Add scores to card layout
+/* 
+        Invoke pr after DB opened
         Preferrences pr = new Preferrences();           // Preferences class
         add(pr, PREFERRENCES);                          // Add preferences to card layout
+*/
         this.setLocationRelativeTo(null);               // Center JFrame on screen
 
 /*
@@ -1242,11 +1267,14 @@ public class HandicapMain extends JFrame
         }
         
         handicapFrame.setVisible(true);             // HandicapMain visible
-        returnStack.push(MAINMENU);                 // MAINMENU in returnStack
+//        returnStack.push(MAINMENU);                 // MAINMENU in returnStack
         
+        Preferrences pr = new Preferrences();           // Preferences class after DB opened
+        add(pr, PREFERRENCES);                          // Add preferences to card layout
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
     public static javax.swing.JMenu mnDebug;
     private javax.swing.JMenu mnEdit;
     private javax.swing.JMenu mnFile;

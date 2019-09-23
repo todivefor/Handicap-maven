@@ -5,6 +5,9 @@
  */
 package org.todivefor.handicap;
 
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
@@ -77,6 +80,34 @@ public class Preferrences extends javax.swing.JPanel
             }
         }
         HandicapMain.fillingLookAndFeelComboBox = false;			// Done filling
+
+//      Load players combo box
+        
+        DatabaseMetaData md;                                                // DB meta data
+        ResultSet rs;
+        try
+        {
+            md = SQLiteConnection.connection.getMetaData();                 // Retrieve DB meta data
+            rs = md.getTables(null, null, "%", null);                       // Table names
+            while (rs.next())                                               // Loop thru table names
+            {
+                String table = rs.getString(3);                             // Table name
+                if (table.contains("SCORE"))                                // SCORE table?
+                    if (!table.contains("YrEnd"))                           // Yes, but not YrEnd?
+                    {
+                        int pastName = table.indexOf("_");                  // Index past name
+                        table = table.substring(0, pastName);
+                        comboBoxPreferencesPlayer.addItem(table);           // Add to combo box
+                    }
+                if (HandicapMain.debug)
+                    System.out.println(rs.getString(3));
+            }
+        }
+        catch (SQLException ex)
+        {
+            Logger.getLogger(Preferrences.class.getName()).log(Level.SEVERE, null, ex);
+        }       
+        
     }
 
     /**
@@ -111,6 +142,8 @@ public class Preferrences extends javax.swing.JPanel
         lblPreferencesTheme = new javax.swing.JLabel();
         comboBoxPreferencesTheme = new javax.swing.JComboBox<>();
         btnPreferencesDebug = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        comboBoxPreferencesPlayer = new javax.swing.JComboBox<>();
         panelSouth = new javax.swing.JPanel();
         btnPreferrencesExit = new javax.swing.JButton();
 
@@ -165,6 +198,19 @@ public class Preferrences extends javax.swing.JPanel
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         panelCenter.add(btnPreferencesDebug, gridBagConstraints);
 
+        jLabel1.setText("Player:    ");
+        panelCenter.add(jLabel1, new java.awt.GridBagConstraints());
+
+        comboBoxPreferencesPlayer.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select" }));
+        comboBoxPreferencesPlayer.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                comboBoxPreferencesPlayerActionPerformed(evt);
+            }
+        });
+        panelCenter.add(comboBoxPreferencesPlayer, new java.awt.GridBagConstraints());
+
         add(panelCenter, java.awt.BorderLayout.CENTER);
 
         btnPreferrencesExit.setText("Back");
@@ -217,7 +263,7 @@ public class Preferrences extends javax.swing.JPanel
         catch (BackingStoreException ex)
         {
             Logger.getLogger(Preferrences.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } 
     }//GEN-LAST:event_comboBoxPreferencesLookAndFeelActionPerformed
 
     private void comboBoxPreferencesThemeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_comboBoxPreferencesThemeActionPerformed
@@ -279,15 +325,76 @@ public class Preferrences extends javax.swing.JPanel
         }
     }//GEN-LAST:event_btnPreferencesDebugActionPerformed
 
+    private void comboBoxPreferencesPlayerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_comboBoxPreferencesPlayerActionPerformed
+    {//GEN-HEADEREND:event_comboBoxPreferencesPlayerActionPerformed
+            
+            HandicapMain.userName = (String) comboBoxPreferencesPlayer.
+                    getSelectedItem();                                              // Table name from combo
+            HandicapMain.handicapPrefs.put(HandicapMain.HANDICAPUSERNAME, 
+                    HandicapMain.userName);                                         // Save username
+            HandicapMain.scoreTableName = HandicapMain.userName + "_SCORE_TBL";     // scoreTable Name "userName_SCORE_TBL"
+            HandicapMain.handicapPrefs.put(HandicapMain.HANDICAPSCORETABLENAME, 
+                    HandicapMain.scoreTableName);                                   // Save the new in preference
+            HandicapMain.courseTableName = HandicapMain.userName + "_COURSE_TBL";   // courseTableName "userName_COURSE_TBL"
+            HandicapMain.setFrameTitle("Handicap - " + HandicapMain.userName);      // Set screen title
+            HandicapMain.handicapPrefs.put(HandicapMain.HANDICAPCOURSETABLENAME, 
+                    HandicapMain.courseTableName);                                  // Save the new in preference
+            try
+            {
+                HandicapMain.handicapPrefs.flush();                                 // Make all preferences changes permanent
+            }
+            catch (BackingStoreException ex)
+            {
+                Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, 
+                        null, ex);
+            }
+            DisplayScores.scoreDataChanged = true;                                  // Force re-display
+            DisplayScores.refreshScoreTable(HandicapMain.scoreTableName);           // Chane player, must redisplay
+            MaintainCourses.refreshCourseTable(SQLiteConnection.connection, 
+                    HandicapMain.courseTableName);                                  // Fill initial course table
+//            HandicapMain.returnStack.push(HandicapMain.MAINMENU);                   // For main menu
+    }//GEN-LAST:event_comboBoxPreferencesPlayerActionPerformed
+
 /*
  *  Beginning of common methods within Preferrences class
  */
+    
+/**
+ * 
+ *  Read Handicap DB looking for player_SCORE_TBL
+ *  Add player to player combo box
+ * @param connection 
+ */
+/*
+    public static void loadPlayersInDB(Connection connection)
+    {
+        DatabaseMetaData md;
+        ResultSet rs;
+        try
+        {
+            md = connection.getMetaData();
+            rs = md.getTables(null, null, "%", null);
+            while (rs.next()) 
+            {
+                comboBoxPreferencesPlayer.addItem(rs.getString(3));
+                System.out.println(rs.getString(3));
+            }
+        }
+        catch (SQLException ex)
+        {
+            Logger.getLogger(Preferrences.class.getName()).log(Level.SEVERE, null, ex);
+        }   
+
+    }
+*/
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnPreferencesDebug;
     private javax.swing.JButton btnPreferrencesExit;
     private javax.swing.JComboBox<String> comboBoxPreferencesLookAndFeel;
+    private javax.swing.JComboBox<String> comboBoxPreferencesPlayer;
     private javax.swing.JComboBox<String> comboBoxPreferencesTheme;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel lblLookAndFeel;
     private javax.swing.JLabel lblPreferencesTheme;
     private javax.swing.JPanel panelCenter;
