@@ -5,6 +5,7 @@
  */
 package org.todivefor.handicap;
 
+import java.awt.event.ActionListener;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,6 +24,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class Preferrences extends javax.swing.JPanel
 {
     public static JFileChooser fc;
+    public static ActionListener lookandFeelListener;                   // Add look and feel listener listener
+    public static ActionListener lookandFeelThemeListener;              // Add look and feel theme listener listener
+    public static ActionListener playerListener;                        // Player combobox listener
 
     /**
      * Creates new form Preferences
@@ -46,18 +50,6 @@ public class Preferrences extends javax.swing.JPanel
         if (!lAndF.equals(HandicapMain.NOLF))                           // Any theme there
                 comboBoxPreferencesTheme.setSelectedItem(lAndF);        // Yes, display in combobox
 		
-/*
- * 		Load L&F 	
- */
-//		comboBoxPreferencesLookAndFeel.addItem("Metal");			// "Metal", "System", "Motif", Windows
-//		comboBoxPreferencesLookAndFeel.addItem("System");
-//		comboBoxPreferencesLookAndFeel.addItem("Motif");
-//		if (!(HandicapMain.operatingSystem.startsWith("Win") || HandicapMain.operatingSystem.startsWith("Mac")))
-//			comboBoxPreferencesLookAndFeel.addItem("GTK");                  // Not Windows or Mac
-//		if (HandicapMain.operatingSystem.startsWith("Win"))		
-//				comboBoxPreferencesLookAndFeel.addItem("Windows");      // Windows only
-//		comboBoxPreferencesLookAndFeel.addItem("Nimbus");
-
 //      Get look and feel names in JDK and add to L&F combobox
 
         UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
@@ -79,7 +71,10 @@ public class Preferrences extends javax.swing.JPanel
                 HandicapMain.handicapPrefs.remove(HandicapMain.HANDICAPTHEME);	// Delete any theme from prefs
             }
         }
-        HandicapMain.fillingLookAndFeelComboBox = false;			// Done filling
+        comboBoxPreferencesLookAndFeel.addActionListener(
+                lookandFeelListener);                                       // Add listener for L&F combobox
+        comboBoxPreferencesTheme.addActionListener(
+                lookandFeelThemeListener);                                  // Add listener for L&F theme combobox
 
 //      Load players combo box
         
@@ -107,7 +102,7 @@ public class Preferrences extends javax.swing.JPanel
         {
             Logger.getLogger(Preferrences.class.getName()).log(Level.SEVERE, null, ex);
         }       
-        
+        comboBoxPreferencesPlayer.addActionListener(playerListener);        // Add action listener for player
     }
 
     /**
@@ -144,6 +139,9 @@ public class Preferrences extends javax.swing.JPanel
         btnPreferencesDebug = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         comboBoxPreferencesPlayer = new javax.swing.JComboBox<>();
+        jLabel2 = new javax.swing.JLabel();
+        textPreferencesLHI = new javax.swing.JTextField();
+        chkBoxPreferencesWHC = new javax.swing.JCheckBox();
         panelSouth = new javax.swing.JPanel();
         btnPreferrencesExit = new javax.swing.JButton();
 
@@ -155,13 +153,13 @@ public class Preferrences extends javax.swing.JPanel
         panelCenter.add(lblLookAndFeel, new java.awt.GridBagConstraints());
 
         comboBoxPreferencesLookAndFeel.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{} ));
-        comboBoxPreferencesLookAndFeel.addActionListener(new java.awt.event.ActionListener()
+        lookandFeelListener = new ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
                 comboBoxPreferencesLookAndFeelActionPerformed(evt);
             }
-        });
+        };
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.insets = new java.awt.Insets(0, 19, 0, 19);
         panelCenter.add(comboBoxPreferencesLookAndFeel, gridBagConstraints);
@@ -173,13 +171,13 @@ public class Preferrences extends javax.swing.JPanel
         panelCenter.add(lblPreferencesTheme, gridBagConstraints);
 
         comboBoxPreferencesTheme.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{} ));
-        comboBoxPreferencesTheme.addActionListener(new java.awt.event.ActionListener()
+        lookandFeelThemeListener = new ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
                 comboBoxPreferencesThemeActionPerformed(evt);
             }
-        });
+        };
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 1;
         panelCenter.add(comboBoxPreferencesTheme, gridBagConstraints);
@@ -198,93 +196,80 @@ public class Preferrences extends javax.swing.JPanel
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         panelCenter.add(btnPreferencesDebug, gridBagConstraints);
 
-        jLabel1.setText("Player:    ");
+        jLabel1.setText("  Player:    ");
         panelCenter.add(jLabel1, new java.awt.GridBagConstraints());
 
-        comboBoxPreferencesPlayer.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select" }));
-        comboBoxPreferencesPlayer.addActionListener(new java.awt.event.ActionListener()
+        playerListener = new ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
                 comboBoxPreferencesPlayerActionPerformed(evt);
             }
-        });
+        };
         panelCenter.add(comboBoxPreferencesPlayer, new java.awt.GridBagConstraints());
 
-        add(panelCenter, java.awt.BorderLayout.CENTER);
+        jLabel2.setText("Low HI");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        panelCenter.add(jLabel2, gridBagConstraints);
 
-        btnPreferrencesExit.setText("Back");
-        btnPreferrencesExit.addActionListener(new java.awt.event.ActionListener()
+        textPreferencesLHI.setText("99.9");
+        textPreferencesLHI.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
-                btnPreferrencesExitActionPerformed(evt);
+                textPreferencesLHIActionPerformed(evt);
             }
         });
-        panelSouth.add(btnPreferrencesExit);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        panelCenter.add(textPreferencesLHI, gridBagConstraints);
 
-        add(panelSouth, java.awt.BorderLayout.PAGE_END);
-    }// </editor-fold>//GEN-END:initComponents
+        chkBoxPreferencesWHC.setText("Old HC");
+        chkBoxPreferencesWHC.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                chkBoxPreferencesWHCActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        panelCenter.add(chkBoxPreferencesWHC, gridBagConstraints);
+
+        add(panelCenter, java.awt.BorderLayout.CENTER);
+        textPreferencesLHI.addFocusListener(new java.awt.event.FocusAdapter()
+            {
+                public void focusGained(java.awt.event.FocusEvent evt)
+                {
+                    SwingUtilities.invokeLater(() ->
+                        {
+                            textPreferencesLHI.selectAll();
+                        });
+                    }
+                });
+
+                btnPreferrencesExit.setText("Back");
+                btnPreferrencesExit.addActionListener(new java.awt.event.ActionListener()
+                {
+                    public void actionPerformed(java.awt.event.ActionEvent evt)
+                    {
+                        btnPreferrencesExitActionPerformed(evt);
+                    }
+                });
+                panelSouth.add(btnPreferrencesExit);
+
+                add(panelSouth, java.awt.BorderLayout.PAGE_END);
+            }// </editor-fold>//GEN-END:initComponents
+
+    static void addPlayerToCombo(String userName)
+    {
+        comboBoxPreferencesPlayer.addItem(userName);                // Add to combo box
+    }
     
-    private void comboBoxPreferencesLookAndFeelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_comboBoxPreferencesLookAndFeelActionPerformed
-    {//GEN-HEADEREND:event_comboBoxPreferencesLookAndFeelActionPerformed
-        if (!HandicapMain.fillingLookAndFeelComboBox)               // Are we filling L & F combobox?
-        {
-            HandicapMain.lookAndFeel = 
-                    (String) (comboBoxPreferencesLookAndFeel.
-                    getSelectedItem());                             // No
-            if (HandicapMain.lookAndFeel.equals("Metal"))           // Is this metal?
-            {
-                lblPreferencesTheme.setVisible(true);               // Metal, so set themes label visible in Prefs
-                comboBoxPreferencesTheme.setVisible(true);          // Set themes combobox visible
-            } 
-            else                                                    // Not metal
-            {
-                lblPreferencesTheme.setVisible(false);              // Set themes label invisible in Prefs
-                comboBoxPreferencesTheme.setVisible(false);         // Set themes combobox not visible
-                HandicapMain.initLookAndFeel(HandicapMain.
-                        lookAndFeel, HandicapMain.THEME);           // No theme, so go
-            }
-            System.out.println(HandicapMain.handicapPrefs);
-            HandicapMain.handicapPrefs.put(HandicapMain.HANDICAPLOOKANDFEEL, HandicapMain.lookAndFeel); // Set L & F in Prefs
-            System.out.println(HandicapMain.handicapPrefs);
-            SwingUtilities.updateComponentTreeUI(getParent());      // Update all components of frame
-            DisplayScores.scoreDataChanged = true;                  // Re-due display scores
-            if (HandicapMain.lastCard.equals(HandicapMain.MAINTAINCOURSES))     // Are we changing L&F from course display?
-                MaintainCourses.refreshCourseTable(SQLiteConnection.connection,
-                        HandicapMain.courseTableName);      // Yes, refresh course table
-            if (HandicapMain.lastCard.equals(HandicapMain.DISPLAYSCORES))       // Are we changing L&F from score display?
-                DisplayScores.refreshScoreTable(HandicapMain.scoreTableName);   // Refresh scores table
-        }
-        try
-        {
-            HandicapMain.handicapPrefs.flush();                     // Make all preference changes permanent
-        }
-        catch (BackingStoreException ex)
-        {
-            Logger.getLogger(Preferrences.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-    }//GEN-LAST:event_comboBoxPreferencesLookAndFeelActionPerformed
-
-    private void comboBoxPreferencesThemeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_comboBoxPreferencesThemeActionPerformed
-    {//GEN-HEADEREND:event_comboBoxPreferencesThemeActionPerformed
-        if (!HandicapMain.fillingLookAndFeelComboBox)                               // Filling L & F combobox
-        {
-            String theme = (String) (comboBoxPreferencesTheme.getSelectedItem());   // No, get theme selection
-            HandicapMain.handicapPrefs.put(HandicapMain.HANDICAPTHEME, theme);      // Save in preferences
-            try
-            {
-                HandicapMain.handicapPrefs.flush();                                 // Make all preference changes permanent
-            }
-            catch (BackingStoreException ex)
-            {
-                Logger.getLogger(Preferrences.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            HandicapMain.initLookAndFeel(HandicapMain.lookAndFeel, theme);      // Set theme
-            SwingUtilities.updateComponentTreeUI(getParent());			// Update all components of frame
-	}
-    }//GEN-LAST:event_comboBoxPreferencesThemeActionPerformed
-
     private void btnPreferrencesExitActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnPreferrencesExitActionPerformed
     {//GEN-HEADEREND:event_btnPreferrencesExitActionPerformed
 //        HandicapMain.cards.show(getParent(), HandicapMain.whereToReturn); // Return to where came from
@@ -325,35 +310,28 @@ public class Preferrences extends javax.swing.JPanel
         }
     }//GEN-LAST:event_btnPreferencesDebugActionPerformed
 
-    private void comboBoxPreferencesPlayerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_comboBoxPreferencesPlayerActionPerformed
-    {//GEN-HEADEREND:event_comboBoxPreferencesPlayerActionPerformed
-            
-            HandicapMain.userName = (String) comboBoxPreferencesPlayer.
-                    getSelectedItem();                                              // Table name from combo
-            HandicapMain.handicapPrefs.put(HandicapMain.HANDICAPUSERNAME, 
-                    HandicapMain.userName);                                         // Save username
-            HandicapMain.scoreTableName = HandicapMain.userName + "_SCORE_TBL";     // scoreTable Name "userName_SCORE_TBL"
-            HandicapMain.handicapPrefs.put(HandicapMain.HANDICAPSCORETABLENAME, 
-                    HandicapMain.scoreTableName);                                   // Save the new in preference
-            HandicapMain.courseTableName = HandicapMain.userName + "_COURSE_TBL";   // courseTableName "userName_COURSE_TBL"
-            HandicapMain.setFrameTitle("Handicap - " + HandicapMain.userName);      // Set screen title
-            HandicapMain.handicapPrefs.put(HandicapMain.HANDICAPCOURSETABLENAME, 
-                    HandicapMain.courseTableName);                                  // Save the new in preference
-            try
-            {
-                HandicapMain.handicapPrefs.flush();                                 // Make all preferences changes permanent
-            }
-            catch (BackingStoreException ex)
-            {
-                Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, 
-                        null, ex);
-            }
-            DisplayScores.scoreDataChanged = true;                                  // Force re-display
-            DisplayScores.refreshScoreTable(HandicapMain.scoreTableName);           // Chane player, must redisplay
-            MaintainCourses.refreshCourseTable(SQLiteConnection.connection, 
-                    HandicapMain.courseTableName);                                  // Fill initial course table
-//            HandicapMain.returnStack.push(HandicapMain.MAINMENU);                   // For main menu
-    }//GEN-LAST:event_comboBoxPreferencesPlayerActionPerformed
+    private void textPreferencesLHIActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_textPreferencesLHIActionPerformed
+    {//GEN-HEADEREND:event_textPreferencesLHIActionPerformed
+        String userHANDICAPLOWHI = HandicapMain.userName + HandicapMain.HANDICAPLOWHI;
+        String lowHIS = textPreferencesLHI.getText();
+        HandicapMain.handicapPrefs.put(userHANDICAPLOWHI,lowHIS);                   //  Save low HI
+        try                              
+        {
+            HandicapMain.handicapPrefs.flush();                                     // Make all preferences changes permanent
+        }
+        catch (BackingStoreException ex)
+        {
+            Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        
+        System.out.println("Low HI: " + lowHIS);
+    }//GEN-LAST:event_textPreferencesLHIActionPerformed
+
+    private void chkBoxPreferencesWHCActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_chkBoxPreferencesWHCActionPerformed
+    {//GEN-HEADEREND:event_chkBoxPreferencesWHCActionPerformed
+        DisplayScores.refreshScoreTable(HandicapMain.scoreTableName);       // Change state, refresh
+    }//GEN-LAST:event_chkBoxPreferencesWHCActionPerformed
 
 /*
  *  Beginning of common methods within Preferrences class
@@ -388,16 +366,114 @@ public class Preferrences extends javax.swing.JPanel
     }
 */
 
+/*
+        My maintained event handlers
+*/ 
+    
+    private void comboBoxPreferencesLookAndFeelActionPerformed(java.awt.event.ActionEvent evt)                                                               
+    {                                                                   
+        HandicapMain.lookAndFeel = 
+                (String) (comboBoxPreferencesLookAndFeel.
+                getSelectedItem());                             // No
+        if (HandicapMain.lookAndFeel.equals("Metal"))           // Is this metal?
+        {
+            lblPreferencesTheme.setVisible(true);               // Metal, so set themes label visible in Prefs
+            comboBoxPreferencesTheme.setVisible(true);          // Set themes combobox visible
+        } 
+        else                                                    // Not metal
+        {
+            lblPreferencesTheme.setVisible(false);              // Set themes label invisible in Prefs
+            comboBoxPreferencesTheme.setVisible(false);         // Set themes combobox not visible
+            HandicapMain.initLookAndFeel(HandicapMain.
+                    lookAndFeel, HandicapMain.THEME);           // No theme, so go
+        }
+        System.out.println(HandicapMain.handicapPrefs);
+        HandicapMain.handicapPrefs.put(HandicapMain.HANDICAPLOOKANDFEEL, HandicapMain.lookAndFeel); // Set L & F in Prefs
+        System.out.println(HandicapMain.handicapPrefs);
+        SwingUtilities.updateComponentTreeUI(getParent());      // Update all components of frame
+        DisplayScores.scoreDataChanged = true;                  // Re-due display scores
+        if (HandicapMain.lastCard.equals(HandicapMain.MAINTAINCOURSES))     // Are we changing L&F from course display?
+            MaintainCourses.refreshCourseTable(SQLiteConnection.connection,
+                    HandicapMain.courseTableName);      // Yes, refresh course table
+        if (HandicapMain.lastCard.equals(HandicapMain.DISPLAYSCORES))       // Are we changing L&F from score display?
+            DisplayScores.refreshScoreTable(HandicapMain.scoreTableName);   // Refresh scores table
+        try
+        {
+            HandicapMain.handicapPrefs.flush();                     // Make all preference changes permanent
+        }
+        catch (BackingStoreException ex)
+        {
+            Logger.getLogger(Preferrences.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+    }
+    
+private void comboBoxPreferencesThemeActionPerformed(java.awt.event.ActionEvent evt)                                                         
+    {                                                             
+        String theme = (String) (comboBoxPreferencesTheme.getSelectedItem());   // No, get theme selection
+        HandicapMain.handicapPrefs.put(HandicapMain.HANDICAPTHEME, theme);      // Save in preferences
+        try
+        {
+            HandicapMain.handicapPrefs.flush();                                 // Make all preference changes permanent
+        }
+        catch (BackingStoreException ex)
+        {
+            Logger.getLogger(Preferrences.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        HandicapMain.initLookAndFeel(HandicapMain.lookAndFeel, theme);      // Set theme
+        SwingUtilities.updateComponentTreeUI(getParent());			// Update all components of frame
+    }
+
+    private void comboBoxPreferencesPlayerActionPerformed(java.awt.event.ActionEvent evt)                                                          
+    {                                                              
+            
+            if (!comboBoxPreferencesPlayer.hasFocus())                              // Loading combo?
+                return;                                                             // Yes, do nothing
+
+            HandicapMain.userName = (String) comboBoxPreferencesPlayer.
+                    getSelectedItem();                                              // Table name from combo
+            HandicapMain.handicapPrefs.put(HandicapMain.HANDICAPUSERNAME, 
+                    HandicapMain.userName);                                         // Save username
+            HandicapMain.scoreTableName = HandicapMain.userName + "_SCORE_TBL";     // scoreTable Name "userName_SCORE_TBL"
+            HandicapMain.handicapPrefs.put(HandicapMain.HANDICAPSCORETABLENAME, 
+                    HandicapMain.scoreTableName);                                   // Save the new in preference
+            HandicapMain.setFrameTitle("Handicap - " + HandicapMain.userName);      // Set screen title
+            try
+            {
+                HandicapMain.handicapPrefs.flush();                                 // Make all preferences changes permanent
+            }
+            catch (BackingStoreException ex)
+            {
+                Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, 
+                        null, ex);
+            }
+            
+        String lowHI = HandicapMain.handicapPrefs.get(HandicapMain.userName + 
+                HandicapMain.HANDICAPLOWHI, HandicapMain.NOHI);                     // Get low HI
+        if (!lowHI.equals(HandicapMain.NOHI))                                       // Get one?
+        {
+            Preferrences.textPreferencesLHI.setText(lowHI);                         // Yes, set it
+        }
+            
+            DisplayScores.scoreDataChanged = true;                                  // Force re-display
+            DisplayScores.refreshScoreTable(HandicapMain.scoreTableName);           // Chane player, must redisplay
+            MaintainCourses.refreshCourseTable(SQLiteConnection.connection, 
+                    HandicapMain.courseTableName);                                  // Fill initial course table
+//            HandicapMain.returnStack.push(HandicapMain.MAINMENU);                   // For main menu
+    } 
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnPreferencesDebug;
     private javax.swing.JButton btnPreferrencesExit;
+    public static javax.swing.JCheckBox chkBoxPreferencesWHC;
     private javax.swing.JComboBox<String> comboBoxPreferencesLookAndFeel;
-    private javax.swing.JComboBox<String> comboBoxPreferencesPlayer;
+    public static javax.swing.JComboBox<String> comboBoxPreferencesPlayer;
     private javax.swing.JComboBox<String> comboBoxPreferencesTheme;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel lblLookAndFeel;
     private javax.swing.JLabel lblPreferencesTheme;
     private javax.swing.JPanel panelCenter;
     private javax.swing.JPanel panelSouth;
+    public static javax.swing.JTextField textPreferencesLHI;
     // End of variables declaration//GEN-END:variables
 }

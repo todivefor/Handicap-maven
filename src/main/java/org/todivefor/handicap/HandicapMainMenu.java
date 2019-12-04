@@ -150,7 +150,7 @@ public class HandicapMainMenu extends javax.swing.JPanel
     private void btnEditCoursesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnEditCoursesActionPerformed
     {//GEN-HEADEREND:event_btnEditCoursesActionPerformed
         HandicapMain.lastCard = HandicapMain.MAINTAINCOURSES;               // Where we are
-        HandicapMain.returnStack.push(HandicapMain.MAINMENU);               // push MAINTAINCOURSES onto returnStack
+        HandicapMain.returnStack.push(HandicapMain.MAINMENU);               // push MAINTAINCOURSES onto returnStack      
         HandicapMain.setFrameTitle("Handicap Maintain Courses - " +  HandicapMain.userName);
         HandicapMain.cards.show(getParent(), HandicapMain.MAINTAINCOURSES); // MAINTAINCOURSEs card
     }//GEN-LAST:event_btnEditCoursesActionPerformed
@@ -161,24 +161,6 @@ public class HandicapMainMenu extends javax.swing.JPanel
     
     public static void addScore()
     {
-/*
- * 
- * 				This makes score, rating, and slope select all
- * 			
- */
-        AddScores.textFieldScore.addFocusListener(new java.awt.event.FocusAdapter()
-        {
-            public void focusGained(java.awt.event.FocusEvent evt)
-            {
-                SwingUtilities.invokeLater(() ->
-                {
-                    AddScores.textFieldScore.selectAll();
-                    AddScores.textFieldCourseRating.selectAll();
-                    AddScores.textFieldCourseSlope.selectAll();
-                });
-            }
-        });
-
         AddScores.textFieldScore.setText(null);                     // Clear out
         AddScores.getCourse((String) AddScores.comboBoxCourse.
                 getItemAt(0));                                      // First entry in course combobox

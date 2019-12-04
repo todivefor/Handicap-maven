@@ -19,6 +19,7 @@
     <Container class="javax.swing.JPanel" name="panelCenter">
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="            //Create a file chooser&#xa;        fc = new JFileChooser();&#xa;        fc.setAcceptAllFileFilterUsed(false);&#xa;        FileNameExtensionFilter filter1 = new FileNameExtensionFilter(&quot;sqlite DB&quot;, &quot;sqlite&quot;);&#xa;        fc.addChoosableFileFilter(filter1);&#xa;        &#xa;        //Uncomment one of the following lines to try a different&#xa;        //file selection mode.  The first allows just directories&#xa;        //to be selected (and, at least in the Java look and feel,&#xa;        //shown).  The second allows both files and directories&#xa;        //to be selected.  If you leave these lines commented out,&#xa;        //then the default mode (FILES_ONLY) will be used.&#xa;        //&#xa;//        Default is file only&#xa;//        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);&#xa;//        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);"/>
+        <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="        textPreferencesLHI.addFocusListener(new java.awt.event.FocusAdapter()&#xa;        {&#xa;            public void focusGained(java.awt.event.FocusEvent evt)&#xa;            {&#xa;                SwingUtilities.invokeLater(() -&gt;&#xa;                {&#xa;                    textPreferencesLHI.selectAll();&#xa;                });&#xa;            }&#xa;        });"/>
       </AuxValues>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
@@ -44,10 +45,8 @@
               <Connection code="new javax.swing.DefaultComboBoxModel&lt;&gt;(new String[]{} )" type="code"/>
             </Property>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="comboBoxPreferencesLookAndFeelActionPerformed"/>
-          </Events>
           <AuxValues>
+            <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="        lookandFeelListener = new ActionListener()&#xa;        {&#xa;            public void actionPerformed(java.awt.event.ActionEvent evt)&#xa;            {&#xa;                comboBoxPreferencesLookAndFeelActionPerformed(evt);&#xa;            }&#xa;        };"/>
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
           </AuxValues>
           <Constraints>
@@ -72,10 +71,8 @@
               <Connection code="new javax.swing.DefaultComboBoxModel&lt;&gt;(new String[]{} )" type="code"/>
             </Property>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="comboBoxPreferencesThemeActionPerformed"/>
-          </Events>
           <AuxValues>
+            <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="        lookandFeelThemeListener = new ActionListener()&#xa;        {&#xa;            public void actionPerformed(java.awt.event.ActionEvent evt)&#xa;            {&#xa;                comboBoxPreferencesThemeActionPerformed(evt);&#xa;            }&#xa;        };"/>
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
           </AuxValues>
           <Constraints>
@@ -99,7 +96,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel1">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Player:    "/>
+            <Property name="text" type="java.lang.String" value="  Player:    "/>
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -108,22 +105,56 @@
           </Constraints>
         </Component>
         <Component class="javax.swing.JComboBox" name="comboBoxPreferencesPlayer">
-          <Properties>
-            <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-              <StringArray count="1">
-                <StringItem index="0" value="Select"/>
-              </StringArray>
-            </Property>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="comboBoxPreferencesPlayerActionPerformed"/>
-          </Events>
           <AuxValues>
+            <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="        playerListener = new ActionListener()&#xa;        {&#xa;            public void actionPerformed(java.awt.event.ActionEvent evt)&#xa;            {&#xa;                comboBoxPreferencesPlayerActionPerformed(evt);&#xa;            }&#xa;        };"/>
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>
           </AuxValues>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
               <GridBagConstraints gridX="-1" gridY="-1" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="10" weightX="0.0" weightY="0.0"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel2">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Low HI"/>
+          </Properties>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+              <GridBagConstraints gridX="2" gridY="1" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="10" weightX="0.0" weightY="0.0"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+        <Component class="javax.swing.JTextField" name="textPreferencesLHI">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="99.9"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textPreferencesLHIActionPerformed"/>
+          </Events>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>
+          </AuxValues>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+              <GridBagConstraints gridX="3" gridY="1" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="10" weightX="0.0" weightY="0.0"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+        <Component class="javax.swing.JCheckBox" name="chkBoxPreferencesWHC">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Old HC"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkBoxPreferencesWHCActionPerformed"/>
+          </Events>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>
+          </AuxValues>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+              <GridBagConstraints gridX="1" gridY="2" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="10" weightX="0.0" weightY="0.0"/>
             </Constraint>
           </Constraints>
         </Component>

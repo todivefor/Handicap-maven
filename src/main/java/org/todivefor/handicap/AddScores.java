@@ -5,20 +5,23 @@
  */
 package org.todivefor.handicap;
 
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import org.iconutils.IconUtils;
-import org.todivefor.string.utils.StringUtils;
+import javax.swing.SwingUtilities;
+import org.todivefor.iconutils.IconUtils;
+import org.todivefor.stringutils.StringUtils;
 
 /**
  *
@@ -26,9 +29,20 @@ import org.todivefor.string.utils.StringUtils;
  */
 public class AddScores extends javax.swing.JPanel
 {
-    public static boolean fillingCourseCombobox = true;		// Filling initial combobox
     public static int duplicate = 0;                            // Auto-increment duplicate date
     public static JPanel panelAddScores;                        // AddScores main panel
+    public static ActionListener courseListener;                // Course combobox listener
+    
+//      Table position (relative to 0) relative to sql col position                       TBL     SQL
+    private static final int DATE_POS_SQL = HandicapMain.DATE_POS + 1;                  //    0       1
+    private static final int COURSE_POS_SQL = HandicapMain.COURSE_POS + 1;              //    1       2
+    private static final int T_POS_SQL = HandicapMain.T_POS + 1;                        //    2       3
+    private static final int SCORE_POS_SQL = HandicapMain.SCORE_POS + 1;                //    3       4
+    private static final int PCC_POS_SQL = HandicapMain.PCC_POS + 1;                    //    4       5  
+    private static final int U_POS_SQL = HandicapMain.U_POS + 1;                        //    5       6
+    private static final int RATING_POS_SQL = HandicapMain.RATING_POS + 1;              //    6       7
+    private static final int SLOPE_POS_SQL = HandicapMain.SLOPE_POS + 1;                //    7       8
+    private static final int DIFFERENTIAL_POS_SQL = HandicapMain.DIFFERENTIAL_POS + 1;  //    8       9                                                                          //    8       9
     
     /**
      * Creates new form AddScores
@@ -36,6 +50,10 @@ public class AddScores extends javax.swing.JPanel
     public AddScores()
     {
         initComponents();
+        
+        lblAddScoresPCC.setVisible(false);                          // Set PCC label to invisible
+        txtAddScoresPCC.setVisible(false);                          // Set PCC field to invisible
+
     }
 
     /**
@@ -68,14 +86,16 @@ public class AddScores extends javax.swing.JPanel
         btnAddScoresAdd = new javax.swing.JButton();
         btnAddScoreDelete = new javax.swing.JButton();
         btnAddScoreDelete.setVisible(false);        // Initially turn "Delete" button off
+        lblAddScoresPCC = new javax.swing.JLabel();
+        txtAddScoresPCC = new javax.swing.JTextField();
         panelSouth = new javax.swing.JPanel();
         btnAddScoresExit = new javax.swing.JButton();
 
         setLayout(new java.awt.BorderLayout());
 
-        textFieldScore.requestFocusInWindow();
+        //  textFieldScore.requestFocusInWindow();
         java.awt.GridBagLayout panelWestLayout = new java.awt.GridBagLayout();
-        panelWestLayout.columnWidths = new int[] {0, 15, 0, 15, 0, 15, 0, 15, 0};
+        panelWestLayout.columnWidths = new int[] {0, 15, 0, 15, 0, 15, 0, 15, 0, 15, 0};
         panelWestLayout.rowHeights = new int[] {0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0};
         panelWest.setLayout(panelWestLayout);
 
@@ -123,6 +143,14 @@ public class AddScores extends javax.swing.JPanel
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         panelWest.add(textFieldScore, gridBagConstraints);
+
+        textFieldCourseRating.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                textFieldCourseRatingActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 6;
@@ -135,13 +163,13 @@ public class AddScores extends javax.swing.JPanel
         panelWest.add(textFieldCourseSlope, gridBagConstraints);
 
         comboBoxCourse.setEditable(true);
-        comboBoxCourse.addActionListener(new java.awt.event.ActionListener()
+        courseListener = new ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
                 comboBoxCourseActionPerformed(evt);
             }
-        });
+        };
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 4;
@@ -156,13 +184,13 @@ public class AddScores extends javax.swing.JPanel
 
         chckbxAddScoresNineHoleScore.setText("Nine Hole Score");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 8;
         gridBagConstraints.gridy = 0;
         panelWest.add(chckbxAddScoresNineHoleScore, gridBagConstraints);
 
         chckbxAddScoresTournamentScore.setText("Tournament Score");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridx = 10;
         gridBagConstraints.gridy = 0;
         panelWest.add(chckbxAddScoresTournamentScore, gridBagConstraints);
 
@@ -194,32 +222,67 @@ public class AddScores extends javax.swing.JPanel
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         panelWest.add(btnAddScoreDelete, gridBagConstraints);
 
+        lblAddScoresPCC.setText("PCC");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.ipadx = 10;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        panelWest.add(lblAddScoresPCC, gridBagConstraints);
+
+        txtAddScoresPCC.setText("-1");
+        txtAddScoresPCC.setMinimumSize(new java.awt.Dimension(30, 26));
+        txtAddScoresPCC.setPreferredSize(new java.awt.Dimension(30, 26));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        panelWest.add(txtAddScoresPCC, gridBagConstraints);
+
         add(panelWest, java.awt.BorderLayout.CENTER);
-
-        btnAddScoresExit.setIcon(IconUtils.getNavigationIcon("Back", 24));
-        btnAddScoresExit.setText("Back");
-        btnAddScoresExit.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
+        /*
+        *
+        * 				This makes score, rating, and slope select all
+        *
+        */
+        textFieldScore.addFocusListener(new java.awt.event.FocusAdapter()
             {
-                btnAddScoresExitActionPerformed(evt);
-            }
-        });
-        panelSouth.add(btnAddScoresExit);
+                public void focusGained(java.awt.event.FocusEvent evt)
+                {
+                    SwingUtilities.invokeLater(() ->
+                        {
+                            textFieldScore.selectAll();
+                            textFieldCourseRating.selectAll();
+                            textFieldCourseSlope.selectAll();
+                            txtAddScoresPCC.selectAll();
+                        });
+                    }
+                });
 
-        add(panelSouth, java.awt.BorderLayout.PAGE_END);
-        panelAddScores = this;                              // AddScores main panel
-        //  Not needed with RXCardLayout    <RXCardLayout>
-        //      Focus textFieldScore for card layout
-        panelAddScores.addComponentListener(new ComponentAdapter()
-        {
-            @Override
-            public void componentShown(java.awt.event.ComponentEvent e)
-            {
-                textFieldScore.requestFocusInWindow();
-            }
-        });
-    }// </editor-fold>//GEN-END:initComponents
+                btnAddScoresExit.setIcon(IconUtils.getNavigationIcon("Back", 24));
+                btnAddScoresExit.setText("Back");
+                btnAddScoresExit.addActionListener(new java.awt.event.ActionListener()
+                {
+                    public void actionPerformed(java.awt.event.ActionEvent evt)
+                    {
+                        btnAddScoresExitActionPerformed(evt);
+                    }
+                });
+                panelSouth.add(btnAddScoresExit);
+
+                add(panelSouth, java.awt.BorderLayout.PAGE_END);
+                panelAddScores = this;                              // AddScores main panel
+                //  Not needed with RXCardLayout    <RXCardLayout>
+                //      Focus textFieldScore for card layout
+                panelAddScores.addComponentListener(new ComponentAdapter()
+                {
+                    @Override
+                    public void componentShown(java.awt.event.ComponentEvent e)
+                    {
+                        textFieldScore.requestFocusInWindow();
+                    }
+                });
+            }// </editor-fold>//GEN-END:initComponents
 
     private void btnAddScoresExitActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnAddScoresExitActionPerformed
     {//GEN-HEADEREND:event_btnAddScoresExitActionPerformed
@@ -263,7 +326,8 @@ public class AddScores extends javax.swing.JPanel
             try (PreparedStatement pst = SQLiteConnection.
                     connection.prepareStatement(query))         // Try PST with resources
             {
-                pst.setString(1, DisplayScores.saveDate);       // Date in query
+                pst.setString(DATE_POS_SQL, 
+                        DisplayScores.saveDate);                // Date in query
                 pst.execute(); // Execute query
                                                                 // Try closes Prepared Statement
             }
@@ -308,9 +372,9 @@ public class AddScores extends javax.swing.JPanel
  * 				Assume this is a straight "Add"
  */
             // insert into SCORE_TBL (DateField, Course, T, Score, Rating, Slope, Differential)
-            String query = "insert into " + HandicapMain.scoreTableName + " (DateField, Course, T, Score,"
+            String query = "insert into " + HandicapMain.scoreTableName + " (DateField, Course, T, Score, PCC, U, "
                     + " Rating, Slope, Differential)"
-                    + " values(?, ?, ?, ?, ?, ?, ?)";
+                    + " values(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 /*
  * 				If an update or 9 hole selected and a 9 hole score hanging,
@@ -321,7 +385,7 @@ public class AddScores extends javax.swing.JPanel
             {
                 // update SCORE_TBL SET DateField, Course, T, Score, Rating, Slope, Differential WHERE DateField
                 query = "update " + HandicapMain.scoreTableName + " SET DateField = ?, Course = ?,"
-                        + " T = ?, Score = ?, Rating = ?,"
+                        + " T = ?, Score = ?, PCC = ?, U = ?, Rating = ?,"
                         + " Slope = ?, Differential = ? WHERE DateField = ?";
             }
 
@@ -377,18 +441,10 @@ public class AddScores extends javax.swing.JPanel
         HandicapMain.cards.show(getParent(), HandicapMain.ADDSCORES);   // Return ADDSCORES
     }//GEN-LAST:event_btnAddScoresAddActionPerformed
 
-    private void comboBoxCourseActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_comboBoxCourseActionPerformed
-    {//GEN-HEADEREND:event_comboBoxCourseActionPerformed
-/*
- * 
- * 
- * 	If this event was activated due to filling combobox, do nothing
- * 	Only do anything if combobox has been clicked
- * 
- */
-        if (!fillingCourseCombobox)
-            getCourse((String) comboBoxCourse.getSelectedItem());	// Lookup course, then rating and slope
-    }//GEN-LAST:event_comboBoxCourseActionPerformed
+    private void textFieldCourseRatingActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_textFieldCourseRatingActionPerformed
+    {//GEN-HEADEREND:event_textFieldCourseRatingActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textFieldCourseRatingActionPerformed
 
     /*
     Beginning of common methods within AddScores class
@@ -414,6 +470,7 @@ public class AddScores extends javax.swing.JPanel
                 + "Course TEXT(45) NULL, "
                 + "T CHAR(1) NULL, "
                 + "Score INTEGER(3) NULL, "
+                + "PCC CHAR(2) NULL, "
                 + "U CHAR(1) NULL, "
                 + "Rating DOUBLE(3) NULL, "
                 + "Slope INTEGER(3) NULL, "
@@ -461,15 +518,6 @@ public class AddScores extends javax.swing.JPanel
                         HandicapMain.scoreTableName.
                         replace(yrEndName, "");                     // Strip off "YrEnd-YYYY_"
             }
-
-//        } 
-//        catch (SQLException e1)         // Assuming creating duplicate table
-//        {
-//            JOptionPane.showMessageDialog(null, "Duplicate SCORE table,"
-//                    + " using previous: " + HandicapMain.scoreTableName,
-//                    "SCORE table change", JOptionPane.ERROR_MESSAGE);
-////					e1.printStackTrace();
-//        }
     }
     
     /**
@@ -515,6 +563,7 @@ public class AddScores extends javax.swing.JPanel
      */
     boolean addOrUpdateDBRow(String query) throws SQLException
     {
+        boolean thisNineHole = false;                                   // 9 hole?
         try (PreparedStatement pst = SQLiteConnection.connection.
                 prepareStatement(query))                                // Try pst
         {
@@ -526,14 +575,18 @@ public class AddScores extends javax.swing.JPanel
     //			int month = dateChooser.getCalendar().get(Calendar.MONTH) + 1;	// Jan - 0, Feb - 1, ... Dec - 11
     //			int year = dateChooser.getCalendar().get(Calendar.YEAR);
     //			String dateIt = MiscMethods.dateToString(day, month, year);
+            String yyyyMD;
+            yyyyMD = convertTableDate(dateIt);                      // JTable Date (MM/dd/yy) to row date (yyyy-MM-dd)
             if (duplicate == 0)                                     // Same day score?
-                pst.setString(1, convertTableDate(dateIt));         // No - JTable Date (MM/dd/yy) to row date (yyyy-MM-dd)
+                pst.setString(DATE_POS_SQL, yyyyMD);                // No - just yyyymmdd
             else                                                    // Yes                                                      
             {
-                pst.setString(1, convertTableDate(dateIt) + "T00:0" + Integer.toHexString(duplicate));  // Duplicate THH:M1 T00:0n
+                pst.setString(DATE_POS_SQL, yyyyMD + 
+                        "T00:0" + Integer.toHexString(duplicate));  // Duplicate THH:M1 T00:0n
             }
 
-            pst.setString(2, (String) comboBoxCourse.getSelectedItem());    // Course
+            pst.setString(COURSE_POS_SQL, (String) 
+                    comboBoxCourse.getSelectedItem());              // Course
 
             /*
             * 
@@ -543,24 +596,28 @@ public class AddScores extends javax.swing.JPanel
             * 				else test for tournament
             * 
              */
-            if (!(chckbxAddScoresNineHoleScore.isSelected() || chckbxAddScoresTournamentScore.isSelected())) // T or 9?
+            if (!(chckbxAddScoresNineHoleScore.isSelected() || 
+                    chckbxAddScoresTournamentScore.isSelected()))   // T or 9?
             {
-                pst.setString(3, "");						// No, Turn off, nothing special
+                pst.setString(T_POS_SQL, "");                       // No, Turn off, nothing special
                 if ((HandicapMain.inicatorTournOrNineOnDB != null)
-                        && (HandicapMain.inicatorTournOrNineOnDB.equals(HandicapMain.NINEINDICATOR)))   // Was 9 set in DB recored?
+                        && (HandicapMain.inicatorTournOrNineOnDB.
+                                equals(HandicapMain.NINEINDICATOR)))    // Was 9 set in DB recored?
                 {
-                    HandicapMain.handicapPrefs.remove(HandicapMain.HANDICAPNINEHOLE);                   // Yes so we must be turning it off
-                    HandicapMain.inicatorTournOrNineOnDB = null;                                        // Turn off to be safe
+                    HandicapMain.handicapPrefs.remove(HandicapMain.
+                            HANDICAPNINEHOLE);                      // Yes so we must be turning it off
+                    HandicapMain.inicatorTournOrNineOnDB = null;    // Turn off to be safe
                 }
             } 
             else                                                                    // 9 hole score?
              if (chckbxAddScoresNineHoleScore.isSelected())				// 9 hole score
                 {
+                    thisNineHole = true;                                            // 9 hole score
                     String nineHoleHang = HandicapMain.handicapPrefs.get(HandicapMain.HANDICAPNINEHOLE,
                             HandicapMain.NONH);                                     // Get 9 hole hanging from preferences
-                    if (nineHoleHang.equals(HandicapMain.NONH))			// 9 hole score hanging?
+                    if (nineHoleHang.equals(HandicapMain.NONH))                     // 9 hole score hanging?
                     {
-                        pst.setString(3, HandicapMain.NINEINDICATOR);		// No - set in table
+                        pst.setString(T_POS_SQL, HandicapMain.NINEINDICATOR);       // No - set in table
                         HandicapMain.handicapPrefs.put(HandicapMain.HANDICAPNINEHOLE, "yes");   // Set hanging 9 hole score
                     } 
                     else								// 2nd nine hole score, must combine
@@ -573,43 +630,81 @@ public class AddScores extends javax.swing.JPanel
      */
                         String combinedName = "Combined " + displayDateToTableDate(DisplayScores.saveDate) + " "
                                 + (Integer.parseInt(textFieldScore.getText()) - newNineHole) + " "
-                                + newNineHole; 						// Combined course name
-                        pst.setString(2, combinedName);					// Set course to combined
-                        pst.setString(3, "");						// Turn off 9 hole score indicator
+                                + newNineHole;                                              // Combined course name
+                        pst.setString(COURSE_POS_SQL, combinedName);                        // Set course to combined
+                        pst.setString(T_POS_SQL, "");                                       // Turn off 9 hole score indicator
                         HandicapMain.handicapPrefs.remove(HandicapMain.HANDICAPNINEHOLE);   // Set 9 hole score combined
                     }
 
                 } 
              else                       // must be tournament
                 {
-                    pst.setString(3, HandicapMain.TOURNINDICATOR);          // T
+                    pst.setString(T_POS_SQL, HandicapMain.TOURNINDICATOR);                  // T
                 }
 
-            String strScore, strCourseRating, strCourseSlope;
+            String strScore, strCourseRating, strCourseSlope, strCoursePCC = null;
 
-            pst.setString(4, strScore = textFieldScore.getText());		// Score
+                pst.setString(SCORE_POS_SQL, strScore = 
+                        textFieldScore.getText());                                          // Score
 
-            //	Test to be sure score entered is valid
-            if (!StringUtils.isInteger(strScore))
+                //	Test to be sure score entered is valid
+                if (!StringUtils.isInteger(strScore))
+                {
+                    JOptionPane.showMessageDialog(null, "score \" " + strScore
+                            + "\"  is not a valid number, renenter.",
+                            "score", JOptionPane.ERROR_MESSAGE);
+                    duplicate = 99;                                         // This represents an invalid score
+                    return true;                                            // True return with duplicate = 99
+                }
+            pst.setString(RATING_POS_SQL, strCourseRating = 
+                    textFieldCourseRating.getText());                       // Rating
+            pst.setString(SLOPE_POS_SQL, strCourseSlope = 
+                    textFieldCourseSlope.getText());                        // Slope
+            
+           
+            pst.setString(U_POS_SQL, null);
+
+            if (query.contains("update"))                                   // Update?  Additional query field
             {
-                JOptionPane.showMessageDialog(null, "Score \" " + strScore
-                        + "\"  is not a valid number, renenter.",
-                        "Score", JOptionPane.ERROR_MESSAGE);
-                duplicate = 99;                                             // This represents an invalid score
-                return true;                                                // True return with duplicate = 99
+                pst.setString(PCC_POS_SQL, strCoursePCC = 
+                        txtAddScoresPCC.getText());                         //  And PCC
+                
+                //	Test to be sure PCC entered is valid
+                int intPCC;
+                if (!strCoursePCC.isEmpty())
+                {
+                    if (!StringUtils.isInteger(strCoursePCC))
+                    {
+                        JOptionPane.showMessageDialog(null, "PCC \" " + strCoursePCC
+                                + "\"  is not a valid number, renenter.",
+                                "PCC", JOptionPane.ERROR_MESSAGE);
+                        duplicate = 99;                                         // This represents an invalid score
+                        return true;                                            // True return with duplicate = 99
+                    }
+                    else
+                    {
+                        intPCC = Integer.parseInt(strCoursePCC);                // Convert PCC in integer
+                        if (!(intPCC >= -1 && intPCC <= 3))
+                        {
+                            JOptionPane.showMessageDialog(null, "PCC \" " + strCoursePCC
+                                    + "\"  must be between -1 and 3, renenter.",
+                                    "PCC", JOptionPane.ERROR_MESSAGE);
+                            duplicate = 99;                                         // This represents an invalid score
+                            return true;                                            // True return with duplicate = 99
+                        }
+                     }
+                }
+                
+                pst.setString(10, DisplayScores.saveDate);                  // Get date from display score for update
             }
+            else
+                pst.setString(PCC_POS_SQL, null);                           // Add set PCC to null
+            
+            pst.setString(DIFFERENTIAL_POS_SQL, 
+                    calcDiffernential(strScore, strCoursePCC, 
+                    strCourseRating, strCourseSlope, 
+                    thisNineHole, yyyyMD));                                 // Calculate differential
 
-            pst.setString(5, strCourseRating = textFieldCourseRating.getText());    // Rating
-            pst.setString(6, strCourseSlope = textFieldCourseSlope.getText());      // Slope
-
-            pst.setString(7, calcDiffernential(strScore, strCourseRating, strCourseSlope));     // Calculate differential
-
-    //			pst.setString(8, dateIt);       Code for separate date field @ end of row
-            if (query.contains("update"))                           // Update?  Additional query field
-                pst.setString(8, DisplayScores.saveDate);           // Get date from display score for update
-
-    //        try
-    //        {
             pst.execute();                                      // Execute query
         } 
         catch (SQLException e)                                  // Catch SQL exception
@@ -661,22 +756,225 @@ public class AddScores extends javax.swing.JPanel
      * @param String strCourseSlope
      * @return String strDifferential
      */
-    private String calcDiffernential(String strScore, String strCourseRating, String strCourseSlope)
+    private String calcDiffernential(String strScore, String strPCC, 
+            String strCourseRating, String strCourseSlope,
+            boolean nineHole, String ymd)
     {
         final int BASESLOPE = 113;                                  // Base slope
         String strDifferential;                                     // Individual differential
-        int intScore, intCourseSlope;                               // Score and slope
+        int intScore, intCourseSlope, intPCC;                       // Score and slope
         double dblCourseRating, dblDifferential;                    // Course rating and differential
 
+        double pccAdjust = 0;
+        int year = Integer.parseInt(ymd.substring(0, 4));
+        if (year >= HandicapMain.WORLDHCYEAR)                       // WH year?
+        {
+            if (!(strPCC == null))                                  // Any adjustment?
+                if (!(strPCC.isEmpty()))
+                {
+                    pccAdjust = Double.parseDouble(strPCC);         // PCC as double
+                    if (nineHole)                                   // Nine hole?
+                        pccAdjust = .5D * pccAdjust;                // Use half   
+                }
+        }
         intScore = Integer.parseInt(strScore);                      // Score as integer
         dblCourseRating = Double.parseDouble(strCourseRating);      // Course rating as double
         intCourseSlope = Integer.parseInt(strCourseSlope);          // Slope as integer
 
-        dblDifferential = ((intScore - dblCourseRating) * BASESLOPE) / intCourseSlope;	// Calculate differential
+        dblDifferential = ((intScore - dblCourseRating - pccAdjust)
+                * BASESLOPE) / intCourseSlope;                      // Calculate differential
+        
+/*
+ *      This will determine if an exceptional score has been posted
+ *      Differential > previous differential - 7
+ *          Last 20 differentials (including this one) reduced 1 
+ *      Differential > previous differential - 10
+ *          Last 20 differentials (including this one) reduced 2
+ *      Update dblDifferential and 19 others.
+ */
+        String userHANDICAPHI = HandicapMain.userName + HandicapMain.HANDICAPHI;
+        String prevIndexS = HandicapMain.handicapPrefs.get(userHANDICAPHI, 
+                HandicapMain.NOHI);                                 // Previous HI from preferences
+        if (prevIndexS.equals(HandicapMain.NOHI))
+        {
+            System.out.println("No HI");                            // Message, get out
+            prevIndexS = Double.toString(0.0);                      // Make it same as index
+        }
+
+        if (prevIndexS.equals("NH"))
+        {
+            System.out.println("No NH");                            // Message, get out
+            prevIndexS = Double.toString(0.0);                      // Make it same as index
+        }
+        String exceptionMark = "";                                  // Exceptional "", "!", "!!"
+        double prevIndex = Double.parseDouble(prevIndexS);          // Convert previous index to double
+        double diff = prevIndex - dblDifferential;                  // HI - previous
+        if (diff > 10)
+        {
+            processExceptionalScore(2f, diff);                      // Process differentials - 2
+            dblDifferential = dblDifferential - 2D;                 // Reduce current differential by 2
+            exceptionMark = "!!";                                   // Very exceptional
+        }
+            else
+            if (diff > 7)
+            {
+                processExceptionalScore(1f, diff);                  // Process differentials - 1
+                dblDifferential = dblDifferential - 1D;             // Reduce current differential by 1
+                exceptionMark = "!";                                   // Exceptional
+            }
 
         strDifferential = String.format("%04.1f", dblDifferential); //  Differential as nn.n
+        return strDifferential + exceptionMark;                     // Return with String differential
+    }
+    
+/**
+ * 
+ * @param reduceBy  - amount to reduce differentials
+ * @param diff - difference between current handicap index and this differential
+ * This method will determine if an exceptional score has been posted
+ *      Differential > previous differential - 7
+ *          Last 20 differentials (including this one) reduced 1 
+ *      Differential > previous differential - 10
+ *          Last 20 differentials (including this one) reduced 2 
+ */
 
-        return strDifferential;                                     // Return with String differential
+    private static void processExceptionalScore(double reduceBy, double diff)
+    {  
+        if (DisplayScores.scoreDataChanged)                         //  Score table initialized
+            {
+                DisplayScores.refreshScoreTable(HandicapMain.
+                        scoreTableName);                            // No, do it
+                DisplayScores.scoreDataChanged = false;             // Have init                
+            } 
+        String very = "";                                                           // Distingguish between exceptional and "very"
+        String aOrAn = "an";
+        if (reduceBy == 2f)                                                         // Reduce by 2
+        {
+            very = "very";                                                          // Yes, very exceptional
+            aOrAn = "a";
+        }
+        System.out.println("This is " + aOrAn + " " + very + 
+                " exceptional score by: " + diff +
+                "\nReducing 20 past differnentials by " + reduceBy + ".");
+/*
+        Loop through last scoring record (20) and update the differentials
+*/  
+        int lastRow = DisplayScores.tableDisplayScores.
+                getRowCount();                                                      // Rows in table
+        if (lastRow < 1)                                                            // Empty?
+        {
+            return;
+        }
+        int scoresInCurrentRecord = 19;                                             // # scores in current record - assume 20
+        if (lastRow < 19)                                                           // More than 20 scores?
+        {
+            scoresInCurrentRecord = lastRow;                                        // Get scores we have
+        }
+        int diffPosition = HandicapMain.DIFFERENTIAL_POS - 1;                       // Position of differential old format
+        if (DisplayScores.newWHFileFormat)
+            diffPosition++;                                                         // Position of differential new format
+
+                // update SCORE_TBL SET DateField, Course, T, Score, Rating, Slope, Differential WHERE DateField
+        
+        String query = "UPDATE " + HandicapMain.scoreTableName + " "
+                + "SET differential = ? "
+                + "WHERE DateField = ? "
+                + "AND Course = ? "
+                + "AND Score = ? "
+                + "AND Rating = ? "
+                + "AND Slope = ?";
+        int resultPSTBatch[] = null;                                                // Array from pst.execute
+        try (PreparedStatement pst = SQLiteConnection.connection.
+                prepareStatement(query))
+        {
+            SQLiteConnection.connection.setAutoCommit(false);                       // Turn off auto commit in case problem
+            for (int row = 0; row < scoresInCurrentRecord; row++)                   // Loop thru all scores
+            {
+                String scoreDate = DisplayScores.
+                        tableDisplayScores.getModel().getValueAt(row, 
+                                HandicapMain.DATE_POS).toString();                  // Date
+                String yyyyMD = convertTableDate(scoreDate);                               // JTable Date (MM/dd/yy) to row date (yyyy-MM-dd)
+                String scoreCourse = DisplayScores.
+                        tableDisplayScores.getModel().getValueAt(row, 
+                                HandicapMain.COURSE_POS).toString();                // Course
+                String scoreScore = DisplayScores.
+                        tableDisplayScores.getModel().getValueAt(row, 
+                                HandicapMain.SCORE_POS).toString();                 // Score              
+                String scoreRating = DisplayScores.
+                        tableDisplayScores.getModel().getValueAt(row, 
+                                HandicapMain.RATING_POS).toString();                // Rating  
+                String scoreSlope = DisplayScores.
+                        tableDisplayScores.getModel().getValueAt(row, 
+                                HandicapMain.SLOPE_POS).toString();                 // Slope
+                
+//              Differntial, check for any exceptional markings (ie 12.0!). 
+//              Save and remove them for reduction calculation.
+//              Add any new ones on.
+
+                String differential = DisplayScores.
+                        tableDisplayScores.getModel().getValueAt(row, 
+                                HandicapMain.DIFFERENTIAL_POS).toString();          // Differential & any markings
+                String exceptionals = "";                                           // !s
+                int markPos = differential.indexOf("!");                            // Position of any exceptional markings?
+                if (markPos != -1)                                                  // Any exceptional marks?
+                {
+                    for (int i = markPos; i < differential.length(); i++)           // Recreate string of existing !s
+                    {
+                        exceptionals = exceptionals + "!";                          // Add another
+                    }
+                    differential = differential.replaceAll("!", "");                // Get rid of all exceptional marks for calc
+                }
+                double dblDifferential = Double.parseDouble(differential);          // differential to double for calc
+                dblDifferential = dblDifferential - reduceBy;                       // Reduction by 1 or 2
+                dblDifferential = Math.floor((dblDifferential) * 10) / 10;          // Rounded to tenths
+                if (reduceBy == 1D)                                                 // Exceptional score?
+                    differential = String.valueOf(dblDifferential) + 
+                            exceptionals + "!";                                     // Yes, add another ! to what was there before
+                else
+                    differential = String.valueOf(dblDifferential) + 
+                            exceptionals + "!!";                                    // No, very exceptional add !! to what was there before
+                pst.setString(1, differential);
+                pst.setString(2, yyyyMD);
+                pst.setString(3, scoreCourse);
+                pst.setString(4, scoreScore);
+                pst.setString(5, scoreRating);
+                pst.setString(6, scoreSlope);
+                pst.addBatch();                                                     // Batch all within last 19
+            }
+            resultPSTBatch = pst.executeBatch();                                    // Execute changes
+            if (HandicapMain.debug)
+            {
+                System.out.println(Arrays.toString(resultPSTBatch));                // Error array
+            }
+            int yesOrNo = JOptionPane.showConfirmDialog(null, 
+                "Do you want to commit the changes to handicap DB?",
+                "Commit changes",
+                JOptionPane.YES_NO_OPTION);
+            if (yesOrNo == JOptionPane.YES_OPTION)
+            {
+                SQLiteConnection.connection.commit();                               // Commit changes
+            }
+            else
+            {
+                SQLiteConnection.connection.rollback();                             // No way
+            }
+            SQLiteConnection.connection.setAutoCommit(true);                        // Turn on auto commit
+            pst.close();
+        }
+        catch (SQLException ex)
+        {
+            try
+            {
+                System.out.println(Arrays.toString(resultPSTBatch));                // Error array
+                SQLiteConnection.connection.rollback();                             // Rollback
+            }
+            catch (SQLException ex1)
+            {
+                Logger.getLogger(AddScores.class.getName()).log(Level.SEVERE, 
+                        null, ex1);
+        }
+        Logger.getLogger(AddScores.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 /**
@@ -773,6 +1071,16 @@ public class AddScores extends javax.swing.JPanel
 
         return ymdDate;                                         // Return String yyyy-MM-dd
     }
+/*
+        My maintained event handlers
+*/   
+    
+    private void comboBoxCourseActionPerformed(java.awt.event.ActionEvent evt)                                               
+    {                                                   
+
+        getCourse((String) comboBoxCourse.getSelectedItem());           // Lookup course, then rating and slope
+
+    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public static javax.swing.JButton btnAddScoreDelete;
@@ -787,10 +1095,12 @@ public class AddScores extends javax.swing.JPanel
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    public static javax.swing.JLabel lblAddScoresPCC;
     private javax.swing.JPanel panelSouth;
     private javax.swing.JPanel panelWest;
     public static javax.swing.JTextField textFieldCourseRating;
     public static javax.swing.JTextField textFieldCourseSlope;
     public static javax.swing.JTextField textFieldScore;
+    public static javax.swing.JTextField txtAddScoresPCC;
     // End of variables declaration//GEN-END:variables
 }

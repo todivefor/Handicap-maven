@@ -10,14 +10,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.prefs.BackingStoreException;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import net.proteanit.sql.DbUtils;
-import org.iconutils.IconUtils;
-import org.todivefor.string.utils.StringUtils;
+import org.todivefor.iconutils.IconUtils;
+import org.todivefor.stringutils.StringUtils;
 
 /**
  *
@@ -35,6 +33,7 @@ public class MaintainCourses extends javax.swing.JPanel
     public MaintainCourses()
     {
         initComponents();
+             
     }
 
     /**
@@ -56,12 +55,14 @@ public class MaintainCourses extends javax.swing.JPanel
         textFieldAddCourseName = new javax.swing.JTextField();
         textFieldAddCourseName.setColumns(20);
         textFieldAddCourseCourseRating = new javax.swing.JTextField();
-        textFieldAddCourseCourseRating.setColumns(3);
         textFieldAddCourseCourseSlope = new javax.swing.JTextField();
         textFieldAddCourseCourseSlope.setColumns(3);
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        textFieldAddCourseCoursePar = new javax.swing.JTextField();
+        textFieldAddCourseCoursePar.setColumns(2);
         panelSouth = new javax.swing.JPanel();
         btnAddCourseExit = new javax.swing.JButton();
         scrollPaneCenter = new javax.swing.JScrollPane();
@@ -117,87 +118,122 @@ public class MaintainCourses extends javax.swing.JPanel
         panelWest.add(btnDelete, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         panelWest.add(textFieldAddCourseName, gridBagConstraints);
+
+        textFieldAddCourseCourseRating.setColumns(3);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         panelWest.add(textFieldAddCourseCourseRating, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         panelWest.add(textFieldAddCourseCourseSlope, gridBagConstraints);
 
         jLabel4.setText("Course");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         panelWest.add(jLabel4, gridBagConstraints);
 
         jLabel5.setText("Rating");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         panelWest.add(jLabel5, gridBagConstraints);
 
         jLabel6.setText("Slope");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         panelWest.add(jLabel6, gridBagConstraints);
 
+        jLabel1.setText("Par");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        panelWest.add(jLabel1, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        panelWest.add(textFieldAddCourseCoursePar, gridBagConstraints);
+
         add(panelWest, java.awt.BorderLayout.LINE_START);
+        /*
+        * 				This makes course name, rating, slope, and par select all
+        */
 
-        btnAddCourseExit.setIcon(IconUtils.getNavigationIcon("Back", 24));
-        btnAddCourseExit.setText("Back");
-        btnAddCourseExit.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
+        textFieldAddCourseName.addFocusListener(new java.awt.event.FocusAdapter()
             {
-                btnAddCourseExitActionPerformed(evt);
-            }
-        });
-        panelSouth.add(btnAddCourseExit);
-
-        add(panelSouth, java.awt.BorderLayout.PAGE_END);
-
-        tableDisplayCourses.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][]
-            {
-                {},
-                {},
-                {},
-                {}
-            },
-            new String []
-            {
-
-            }
-        ));
-        tableDisplayCourses.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mouseClicked(java.awt.event.MouseEvent evt)
-            {
-                tableDisplayCoursesMouseClicked(evt);
-            }
-        });
-        scrollPaneCenter.setViewportView(tableDisplayCourses);
-
-        add(scrollPaneCenter, java.awt.BorderLayout.CENTER);
-        panelMaintainCourses = this;                              // This panel
-        //  Not needed with RXCardLayout    <RXCardLayout>
-        //      Focus textFieldCourseName for card layout
-        panelMaintainCourses.addComponentListener(new ComponentAdapter()
-            {
-                @Override
-                public void componentShown(java.awt.event.ComponentEvent e)
+                public void focusGained(java.awt.event.FocusEvent evt)
                 {
-                    textFieldAddCourseName.requestFocusInWindow();
-                }
-            });
-        }// </editor-fold>//GEN-END:initComponents
+                    SwingUtilities.invokeLater(() ->
+                        {
+                            textFieldAddCourseName.selectAll();
+                            textFieldAddCourseCourseRating.selectAll();
+                            textFieldAddCourseCourseSlope.selectAll();
+                            textFieldAddCourseCoursePar.selectAll();
+                        });
+                    }
+                });
+
+                btnAddCourseExit.setIcon(IconUtils.getNavigationIcon("Back", 24));
+                btnAddCourseExit.setText("Back");
+                btnAddCourseExit.addActionListener(new java.awt.event.ActionListener()
+                {
+                    public void actionPerformed(java.awt.event.ActionEvent evt)
+                    {
+                        btnAddCourseExitActionPerformed(evt);
+                    }
+                });
+                panelSouth.add(btnAddCourseExit);
+
+                add(panelSouth, java.awt.BorderLayout.PAGE_END);
+
+                tableDisplayCourses.setModel(new javax.swing.table.DefaultTableModel(
+                    new Object [][]
+                    {
+                        {},
+                        {},
+                        {},
+                        {}
+                    },
+                    new String []
+                    {
+
+                    }
+                ));
+                tableDisplayCourses.addMouseListener(new java.awt.event.MouseAdapter()
+                {
+                    public void mouseClicked(java.awt.event.MouseEvent evt)
+                    {
+                        tableDisplayCoursesMouseClicked(evt);
+                    }
+                });
+                scrollPaneCenter.setViewportView(tableDisplayCourses);
+
+                add(scrollPaneCenter, java.awt.BorderLayout.CENTER);
+                panelMaintainCourses = this;                              // This panel
+                //  Not needed with RXCardLayout    <RXCardLayout>
+                //      Focus textFieldCourseName for card layout
+                panelMaintainCourses.addComponentListener(new ComponentAdapter()
+                    {
+                        @Override
+                        public void componentShown(java.awt.event.ComponentEvent e)
+                        {
+                            textFieldAddCourseName.requestFocusInWindow();
+                        }
+                    });
+                }// </editor-fold>//GEN-END:initComponents
 
     private void btnAddCourseExitActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnAddCourseExitActionPerformed
     {//GEN-HEADEREND:event_btnAddCourseExitActionPerformed
@@ -231,6 +267,7 @@ public class MaintainCourses extends javax.swing.JPanel
                 HandicapMain.saveCourseName = textFieldAddCourseName.getText(); // Save course name
                 textFieldAddCourseCourseRating.setText(rs.getString("Rating")); // Get course rating
                 textFieldAddCourseCourseSlope.setText(rs.getString("Slope"));   // Get course slope
+                textFieldAddCourseCoursePar.setText(rs.getString("Par"));       // Get course par
             }
             else                                                        // Course not found in DB
             {
@@ -293,16 +330,36 @@ public class MaintainCourses extends javax.swing.JPanel
                     "Slope", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
+        
+//				Test for valid Par
+        String parStr = textFieldAddCourseCoursePar.getText();
+        if (!(slopeStr.equals("")))
+        {
+            if (!StringUtils.isInteger(parStr))
+            {
+                JOptionPane.showMessageDialog(null, "Par \" " + parStr
+                        + "\"  is not a valid par, renenter.",
+                        "Par", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } else
+        {
+            JOptionPane.showMessageDialog(null, "Par \" " + parStr
+                    + "\"  is not a valid par, renenter.",
+                    "Par", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
         try
         {
 //              insert into courseTable Name, Rating, Slope 
             String query = "insert into " + HandicapMain.courseTableName + 
-                    " (Name, Rating, Slope) values(?, ?, ?)";               // Add course to DB
+                    " (Name, Rating, Slope, Par) values(?, ?, ?, ?)";       // Add course to DB
             PreparedStatement pst = SQLiteConnection.connection.prepareStatement(query);    // PST
             pst.setString(1, textFieldAddCourseName.getText());             // Course name
             pst.setString(2, textFieldAddCourseCourseRating.getText());     // Course rating
             pst.setString(3, textFieldAddCourseCourseSlope.getText());      // Course slope
+            pst.setString(4, textFieldAddCourseCoursePar.getText());      // Course par
 
             pst.execute();                                                  // Execute query
             JOptionPane.showMessageDialog(null, textFieldAddCourseName.getText() + " course added");    // Added
@@ -336,7 +393,8 @@ public class MaintainCourses extends javax.swing.JPanel
             String query = "update " + HandicapMain.courseTableName + " set Name='"
                     + textFieldAddCourseName.getText() + "' ,"
                     + "Rating='" + textFieldAddCourseCourseRating.getText() + "',"
-                    + "Slope='" + textFieldAddCourseCourseSlope.getText() + "' "
+                    + "Slope='" + textFieldAddCourseCourseSlope.getText() + "',"
+                    + "Par='" + textFieldAddCourseCoursePar.getText() + "' "
                     + "where Name='" + HandicapMain.saveCourseName + "'";
 
             PreparedStatement pst = SQLiteConnection.connection.prepareStatement(query);    // PST query
@@ -402,7 +460,7 @@ public class MaintainCourses extends javax.swing.JPanel
  * 	 Create new COURSE table
  */
 
-        HandicapMain.courseTableName = userName + "_COURSE_TBL";        // courseTableName = userName_COURSE_TBL
+        HandicapMain.courseTableName = "COURSE_TBL";                    // courseTableName = COURSE_TBL
 
         try
         {
@@ -410,26 +468,13 @@ public class MaintainCourses extends javax.swing.JPanel
                     + "(Name TEXT(45) NULL, "
                     + "Rating DOUBLE(3) NULL, "
                     + "Slope INTEGER(3) NULL, "
+                    + "Par INTEGER(2) NULL, "
                     + "PRIMARY KEY(Name))";
 
             PreparedStatement pst = SQLiteConnection.connection.prepareStatement(query);
 //					pst.setString(1, "NewTable");
             pst.execute();
             pst.close();
-            /*
-			 * Set score table in in preferences
-			 * Setup a new variable to be used in all COURSE DB queries
-             */
-            HandicapMain.handicapPrefs.put(HandicapMain.HANDICAPCOURSETABLENAME,
-                    HandicapMain.courseTableName);          // Save the new course table in preference
-            try
-            {
-                HandicapMain.handicapPrefs.flush();         // Make all preference changes permanent
-            }
-            catch (BackingStoreException ex)
-            {
-                Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
-            }
         } 
         catch (SQLException e1)                                 // Exception - duplicate
         {
@@ -491,15 +536,15 @@ public class MaintainCourses extends javax.swing.JPanel
     
 /**
  * This method fills the Add Scores course combobox
- * It sets boolean fillingCourseCombobox Handicap field while running
- * to immediately exit coombobox listener
+ * Adds course combobox listener when combobox filled
  * @param connection
  */
 
     public static void fillComboBox(Connection connection, String courseTableName)
-    {
-        AddScores.fillingCourseCombobox = true;				// Filling course combobox
-        AddScores.comboBoxCourse.removeAllItems();			// clear combobox
+    {     
+        AddScores.comboBoxCourse.removeActionListener(AddScores.
+                courseListener);                                            // Remove listener for course combobox
+        AddScores.comboBoxCourse.removeAllItems();                          // clear combobox
         try
         {
 //              select * from courseTable 
@@ -517,13 +562,15 @@ public class MaintainCourses extends javax.swing.JPanel
         {
             e1.printStackTrace();
         }
-        AddScores.fillingCourseCombobox = false;			// Done filling course combobox
+        AddScores.comboBoxCourse.addActionListener(AddScores.
+                courseListener);                                        // Add listener for course combobox
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddCourseExit;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnSave;
     private javax.swing.JButton btnUpdate;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -531,6 +578,7 @@ public class MaintainCourses extends javax.swing.JPanel
     private javax.swing.JPanel panelWest;
     private javax.swing.JScrollPane scrollPaneCenter;
     public static javax.swing.JTable tableDisplayCourses;
+    public static javax.swing.JTextField textFieldAddCourseCoursePar;
     public static javax.swing.JTextField textFieldAddCourseCourseRating;
     public static javax.swing.JTextField textFieldAddCourseCourseSlope;
     public static javax.swing.JTextField textFieldAddCourseName;

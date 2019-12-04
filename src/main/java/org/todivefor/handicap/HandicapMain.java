@@ -17,7 +17,6 @@ import java.util.prefs.Preferences;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -25,9 +24,8 @@ import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 import net.proteanit.sql.DbUtils;
+import org.todivefor.stringutils.StringUtils;
 //import org.todivefor.rxcardlayout.RXCardLayout;                     // <RXCardlayout>
-//import org.todivefor.stack.Stack;
-import org.todivefor.string.utils.StringUtils;
 
 /**
  *
@@ -52,11 +50,29 @@ import org.todivefor.string.utils.StringUtils;
  *      Changed scoreEditingAllowed to true initially
  *      Added print returnStack in debug menu for debugging where to return
  *      Fixed add / delete scores for same day
+ *
+ * 0.1.5
+ *      StringUtils moved to maven control - change import statement
+ *      Replace user_COURSE_TBL with COURSE_TBL
+ *      Add Player to Edit menu
+ *      Add select player to preferences
+ *      World Handicap
+ *          Add low HI to preferences
+ *          Add last HI to preferences
+ *          Turn on / off
+ *          Soft / hard caps
+ *          PCC
+ *          Exceptional score processing
+ *      Add comboBoxCourse listener after combobox is loaded
+ *      Remove and add listener when loading
+ *      Select all for input fields set in "After-All-Set Code"* 
+ *      Low HI maintained
+ *      Added HandicapLauncher
  */
 public class HandicapMain extends JFrame 
 {
-        public static final String VERSION = "0.1.4";               // Application version used in "About"
-        public static final String REVISIONDATE = "09/23/2019";     // Revision date
+        public static final String VERSION = "0.1.5";               // Application version used in "About"
+        public static final String REVISIONDATE = "05/22/2020";     // Revision date
         public static final boolean TEST = false;                    // use test preferences
 /*
  * 	Components referenced from other classes
@@ -66,18 +82,14 @@ public class HandicapMain extends JFrame
 	public static CardLayout cards = new CardLayout();          // Use RXCardLayout to get focus on card <RXCardlayout>
 	
 	public static boolean debug = true;                         // Debug mode	<debug>
-//	final static boolean cTime = false;                         // Compile time debug  <debug>
 	private boolean pathSet = false;                            // Created DB?
 	private static String dbPath = null;                        // Path to DB
 	
-	public static boolean fillingLookAndFeelComboBox = true;    // Am I filling the combobox?
 	public static String saveCourseName;                        // Save course
 	
 	public static String userName = null;                      // Who this is
 	
 	public static String operatingSystem;                       // OS
-	
-//	public static Connection connection;                        // DB connection
 	
 	public static Preferences handicapPrefs;                    // preferences object
 	
@@ -86,9 +98,7 @@ public class HandicapMain extends JFrame
 	final static String HANDICAPDB = "DBFile";			// DB field containing path to handicap.sqlite field ID
 	final static String NODB = "NODB";                                  // DB has not been initialized
 	final static String HANDICAPSCORETABLENAME = "SCORETABLE";	// Preference - SCORE table name field ID
-	final static String NOST = "NOST";                                  // Score table not initialized 
-	final static String HANDICAPCOURSETABLENAME = "COURSETABLE";    // Preference - COURSE table name field ID
-	final static String NOCT = "NOCT";                                  // Course table not initialized 
+	final static String NOST = "NOST";                                  // Score table not initialized  
 	final static String HANDICAPUSERNAME = "USERNAME";		// Preference - USER name field ID
 	final static String NOUN = "NOUN";                                  // Tournament table not initialized 
 	final static String HANDICAPNINEHOLE = "NINEHOLE";		// 9 hole table position
@@ -99,6 +109,10 @@ public class HandicapMain extends JFrame
 	final static String NOLF = "NOLF";                                  // Look and feel not initialized
 	final static String HANDICAPTHEME = "THEME";			// Theme if metal look and feel
 	final static String NOTH = "NOTH";                                  // Theme not initialized
+	final static String HANDICAPLOWHI = "LOWHI";			// Low Handicap index
+	final static String NOLOW = "NOLOW";                                // Low HI not initialized
+	final static String HANDICAPHI = "INDEX";			// Handicap index
+	final static String NOHI = "NOHI";                                  // HI not initialized
 	
 	public static String inicatorTournOrNineOnDB;		// T or 9 indicator on DB
 	
@@ -121,10 +135,11 @@ public class HandicapMain extends JFrame
 	final static int COURSE_POS = 1;                            // Course column
 	final static int T_POS = 2;                                 // T column
 	final static int SCORE_POS = 3;                             // Score column
-	final static int U_POS = 4;                                 // U column
-	final static int RATING_POS = 5;                            // Rating column
-	final static int SLOPE_POS = 6;                             // Slope column
-	final static int DIFFERENTIAL_POS = 7;                      // Differential column
+        final static int PCC_POS = 4;                               // PCC column
+	final static int U_POS = 5;                                 // U column
+	final static int RATING_POS = 6;                            // Rating column
+	final static int SLOPE_POS = 7;                             // Slope column
+	final static int DIFFERENTIAL_POS = 8;                      // Differential column
 	
 	// Miscellaneous constants
 	
@@ -133,7 +148,7 @@ public class HandicapMain extends JFrame
 	final static String NINEINDICATOR = "9";		// Nine hole indicator
 	
 	public static String scoreTableName = null;             // Score table name
-	public static String courseTableName = null;            // Score table name
+	public static String courseTableName = "COURSE_TBL";    // Course table name
 	
 	// Specify the look and feel to use by defining the LOOKANDFEEL constant
 	// Valid values are: null (use the default), "Metal", "System", "Motif", Windows
@@ -147,6 +162,7 @@ public class HandicapMain extends JFrame
 	//final static String THEME = "DefaultMetal";
 	final static String THEME = "Ocean";                    // Default theme for metal
 	public static String lookAndFeel = null;                // Set to nothing
+        public static final int WORLDHCYEAR = 2020;
         String className;                                       // Fully qualified class name for handicapPrefs
 
     /**
@@ -222,6 +238,7 @@ public class HandicapMain extends JFrame
         mnEdit = new javax.swing.JMenu();
         mntmAddScore = new javax.swing.JMenuItem();
         mntmEditCourse = new javax.swing.JMenuItem();
+        mntmAddPlayer = new javax.swing.JMenuItem();
         mnView = new javax.swing.JMenu();
         mntmDisplayScores = new javax.swing.JMenuItem();
         mntmDisplayArchiveScores = new javax.swing.JMenuItem();
@@ -319,6 +336,16 @@ public class HandicapMain extends JFrame
             }
         });
         mnEdit.add(mntmEditCourse);
+
+        mntmAddPlayer.setText("Add Player");
+        mntmAddPlayer.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                mntmAddPlayerActionPerformed(evt);
+            }
+        });
+        mnEdit.add(mntmAddPlayer);
 
         jMenuBar1.add(mnEdit);
 
@@ -439,6 +466,16 @@ public class HandicapMain extends JFrame
     
     private void mntmPreferrencesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmPreferrencesActionPerformed
     {//GEN-HEADEREND:event_mntmPreferrencesActionPerformed
+      
+        String lowHI = handicapPrefs.get(userName + HANDICAPLOWHI, NOHI);   // Get low HI
+        if (!lowHI.equals(NOHI))                                            // Get one?
+        {
+            Preferrences.textPreferencesLHI.setText(lowHI);
+        }
+        
+        
+        Preferrences.comboBoxPreferencesPlayer.setSelectedItem(userName);
+        
         if (HandicapMain.returnStack.empty())                       // Come frome place?
         {
             HandicapMain.returnStack.push(HandicapMain.MAINMENU);   // No, push MAINMENU
@@ -517,16 +554,7 @@ public class HandicapMain extends JFrame
                 Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
             }
             pathSet = true;
-//					if (cTime)
-//					txtrLog.append("New DB: " + path);
         } 
-//        else
-//        {
-////					if (cTime)
-////						txtrLog.append("New command cancelled by user." + "\n");
-//        }
-////				if (cTime)
-////					txtrLog.setCaretPosition(txtrLog.getDocument().getLength());
     }//GEN-LAST:event_mntmNewDbActionPerformed
 
     private void mntmSwitchDbActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmSwitchDbActionPerformed
@@ -555,9 +583,7 @@ public class HandicapMain extends JFrame
             handicapPrefs.put(HANDICAPUSERNAME, userName);			// Save username
             scoreTableName = userName + "_SCORE_TBL";                           // scoreTable Name "userName_SCORE_TBL"
             handicapPrefs.put(HANDICAPSCORETABLENAME, scoreTableName);		// Save the new in preference
-            courseTableName = userName + "_COURSE_TBL";                         // courseTableName "userName_COURSE_TBL"
             setTitle("Handicap - " + userName);                                 // Set screen title
-            handicapPrefs.put(HANDICAPCOURSETABLENAME, courseTableName);    	// Save the new in preference
             try
             {
                 handicapPrefs.flush();                                          // Make all preferences changes permanent
@@ -568,14 +594,6 @@ public class HandicapMain extends JFrame
             }
             DisplayScores.scoreDataChanged = true;				// Force re-display
             MaintainCourses.refreshCourseTable(SQLiteConnection.connection, courseTableName);	// Fill initial course table
-//            DisplayScores.scoreDataChanged = true;				// Force re-display
-
-            //    						tournamentTableName = answer + "_TOURNAMENT_TBL";
-            //    						handicapPrefs.put(HANDICAPTOURNAMENTTABLENAME, tournamentTableName);
-            // Save the new in preference
-            // Switch DB
-//            DisplayScores.scoreDataChanged = true;		// Must force redisplay scores
-//            MaintainCourses.coursesDataChanged = true;	// Must force reload course combo
             handicapPrefs.put(HANDICAPDB, path);			// Save the new in preference
             try
             {
@@ -586,17 +604,11 @@ public class HandicapMain extends JFrame
                 Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
             }
             pathSet = true;
-//					if (cTime)
-//						txtrLog.append("Switched to DB: " + path);
         }
         else
         {
             JOptionPane.showMessageDialog(null, "Switch command cancelled by user");
-//					if (cTime)
-//						txtrLog.append("Switch command cancelled by user." + "\n");
         }
-//				if (cTime)
-//					txtrLog.setCaretPosition(txtrLog.getDocument().getLength());
     }//GEN-LAST:event_mntmSwitchDbActionPerformed
 
     private void mntmAddScoreActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmAddScoreActionPerformed
@@ -624,44 +636,7 @@ public class HandicapMain extends JFrame
         {
             returnStack.push(MAINMENU);                   // No, return MAINMENU
         }
-//        else                                              // Yes
-//        {
-//        if (!lastCard.equals(MAINTAINCOURSES))                          // Come from MAINTAINCOURSES?
-//        {
-//            returnStack.push(lastCard);                                 // No, Save where we came from
-//        }
-//        }
-        lastCard = MAINTAINCOURSES;                                     // Where we are
-        
-/*
- * 				This makes course name, rating, and slope select all			
- */
-
-        MaintainCourses.textFieldAddCourseName.addFocusListener(new java.awt.event.FocusAdapter()
-        {
-            public void focusGained(java.awt.event.FocusEvent evt)
-            {
-                SwingUtilities.invokeLater(() ->
-                {
-                    MaintainCourses.textFieldAddCourseName.selectAll();
-                    MaintainCourses.textFieldAddCourseCourseRating.selectAll();
-                    MaintainCourses.textFieldAddCourseCourseSlope.selectAll();
-                });
-            }
-        });
-    /*              Above lamda from below          */  
-//                SwingUtilities.invokeLater(new Runnable()
-//                {
-//                    @Override
-//                    public void run()
-//                    {
-//                        MaintainCourses.textFieldAddCourseName.selectAll();
-//                        MaintainCourses.textFieldAddCourseCourseRating.selectAll();
-//                        MaintainCourses.textFieldAddCourseCourseSlope.selectAll();
-//                    }
-//                });
-//            }
-//        });      
+        lastCard = MAINTAINCOURSES;                                     // Where we are     
         
         setFrameTitle("Handicap Maintain Courses - " + userName);         // Title
         HandicapMain.cards.show(getContentPane(), MAINTAINCOURSES);
@@ -669,10 +644,6 @@ public class HandicapMain extends JFrame
 
     private void mntmDisplayScoresActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmDisplayScoresActionPerformed
     {//GEN-HEADEREND:event_mntmDisplayScoresActionPerformed
-//        if (HandicapMain.returnStack.empty())                           // Any return address?
-//            HandicapMain.returnStack.push(HandicapMain.MAINMENU);       // No, return MAINMENU
-//        else                                                            // Yes
-//        {
         if (!lastCard.equals(DISPLAYSCORES))                            // Come from DISPLAYSCORES?
         {
             returnStack.push(lastCard);                                 // No, Save where we came from
@@ -693,10 +664,6 @@ public class HandicapMain extends JFrame
 
     private void mntmDisplayArchiveScoresActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmDisplayArchiveScoresActionPerformed
     {//GEN-HEADEREND:event_mntmDisplayArchiveScoresActionPerformed
-//        if (returnStack.empty())                                        // Any return address?
-//            returnStack.push(MAINMENU);                                 // No, return MAINMENU
-//        else                                                            // Yes
-//        {
         if (!lastCard.equals(DISPLAYSCORES))                            // Come from DISPLAYSCORES?
         {
             returnStack.push(lastCard);                                 // No, Save where we came from
@@ -772,6 +739,7 @@ public class HandicapMain extends JFrame
                     + "Course,"
                     + "T,"
                     + "Score,"
+                    + "PCC,"
                     + "U,"
                     + "Rating,"
                     + "Slope,"
@@ -842,18 +810,7 @@ public class HandicapMain extends JFrame
 
     private void mntmDeleteYearScoresActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmDeleteYearScoresActionPerformed
     {//GEN-HEADEREND:event_mntmDeleteYearScoresActionPerformed
-//        if (returnStack.empty())                                        // Any return address?
-//        {
-//            returnStack.push(MAINMENU);                                 // No, return MAINMENU
-//        }
-//        else                                                            // Yes
         returnStack.push(lastCard);       // Save where we came from
-//        {
-//            if (!lastCard.equals(MAINTAINCOURSES))         // Come from MAINTAINCOURSES?
-//            {
-//                returnStack.push(lastCard);       // No, Save where we came from
-//            }
-//        }
         String deleteYear = JOptionPane.showInputDialog(null, "Enter year to Delete (YYYY)", "Delete Year", JOptionPane.DEFAULT_OPTION);
         if (deleteYear == null)                                    // Year entered?
         {
@@ -879,6 +836,7 @@ public class HandicapMain extends JFrame
                  + "Course,"
                  + "T,"
                  + "Score,"
+                 + "PCC,"
                  + "U,"
                  + "Rating,"
                  + "Slope,"
@@ -887,17 +845,6 @@ public class HandicapMain extends JFrame
                  + " WHERE DateField BETWEEN '" + startDate + "' AND '" + endDate + "'"
                  + " Order by DateField DESC";
 
-            /*
-             * 			Change query if we are only displaying tournament scores
-             *///            if (DisplayScores.tournament)
-//            {
-//                query = "select strftime('%m/%d/', DateField) || substr(strftime('%Y', DateField),3, 2) as Date,"
-//                        + "Course as 'Course Name',"
-//                        + " T, Score, U,"
-//                        + "Rating, Slope,"
-//                        + " Differential as 'Index'"
-//                        + " from " + scoreTableName + " where T = '" + "T" + "' Order by DateField DESC";
-//            }
         try 
             (
                 PreparedStatement pst = SQLiteConnection.connection.prepareStatement(query); 
@@ -906,7 +853,6 @@ public class HandicapMain extends JFrame
         {
             DisplayScores.tableDisplayScores.setModel(DbUtils.resultSetToTableModel(rs));
         }
-//        } 
         catch (SQLException e1)
         {
             if (HandicapMain.debug)
@@ -983,6 +929,26 @@ public class HandicapMain extends JFrame
     {//GEN-HEADEREND:event_jMenuItem1ActionPerformed
         System.out.println(HandicapMain.returnStack.toString().replaceAll("\\[", "").replaceAll("]", ""));
     }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void mntmAddPlayerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmAddPlayerActionPerformed
+    {//GEN-HEADEREND:event_mntmAddPlayerActionPerformed
+        userName = JOptionPane.showInputDialog("Your first name");  // Get user name
+        setTitle("Handicap - " + userName);                         // Set screen title "Handicap - userName"
+        handicapPrefs.put(HANDICAPUSERNAME, userName);              // Save user name in preferences
+        AddScores.createScoreTable(userName);                       // Create SCORE table
+        Preferrences.addPlayerToCombo(userName);                    // Add to player combobox
+        // New DB
+        DisplayScores.scoreDataChanged = true;			// Must force redisplay scores
+        try
+        {
+            handicapPrefs.flush();                                  // Make changes permanent
+        }
+        catch (BackingStoreException ex)
+        {
+            Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        pathSet = true;
+    }//GEN-LAST:event_mntmAddPlayerActionPerformed
    
     /*
     Beginning of common methods within HandicapMain class
@@ -1134,22 +1100,10 @@ public class HandicapMain extends JFrame
 //        return;
 //    }
     
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) 
-    {
-        /* Create and display the form */
-        SwingUtilities.invokeLater(() -> 
-        {
-            new HandicapMain().start();
-        });
-    }
-    
 /**
  *  Initialization
  */
-    void start()
+    void start(String args[])
     {        
         handicapFrame = this;                           // Main frame
         
@@ -1187,7 +1141,6 @@ public class HandicapMain extends JFrame
         }
 
         scoreTableName = handicapPrefs.get(HANDICAPSCORETABLENAME, NOST);   // SCORE table
-        courseTableName = handicapPrefs.get(HANDICAPCOURSETABLENAME, NOCT); // COURSE table
         userName = handicapPrefs.get(HANDICAPUSERNAME, NOUN);               // User name
 
         pathSet = true;                                             // Assume handicap DB has been initialized
@@ -1282,6 +1235,7 @@ public class HandicapMain extends JFrame
     private javax.swing.JMenu mnTools;
     private javax.swing.JMenu mnView;
     private javax.swing.JMenuItem mntmAbout;
+    private javax.swing.JMenuItem mntmAddPlayer;
     private javax.swing.JMenuItem mntmAddScore;
     private javax.swing.JMenuItem mntmArchiveScores;
     private javax.swing.JMenuItem mntmDeleteYearScores;

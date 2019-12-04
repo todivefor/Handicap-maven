@@ -7,7 +7,6 @@ package org.todivefor.handicap;
 
 import java.awt.Component;
 import java.awt.HeadlessException;
-//import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,16 +17,16 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import net.proteanit.sql.DbUtils;
-import org.iconutils.IconUtils;
-import org.todivefor.string.utils.StringUtils;
+import org.todivefor.iconutils.IconUtils;
+import org.todivefor.stringutils.StringUtils;
 
 /**
  *
@@ -41,6 +40,13 @@ public class DisplayScores extends javax.swing.JPanel
     public static boolean tournament = false;                   // Displaying tournament scores
 
     public static String saveDate;                              // Save score date (yyyy-MM-dd)
+    private static boolean runDateWorldHandicap = false;        // World Handicap run date
+    private static boolean worldHandicap = false;               // World Handicap
+    private static int archiveYr = 0;                           // Archive year
+       
+    public static boolean newWHFileFormat;                      // File format with PCC
+//    
+    public static int uPosition = HandicapMain.U_POS;           // U table position (variable, based on PCC)
 
     /**
      * Creates new form DisplayScores
@@ -48,6 +54,13 @@ public class DisplayScores extends javax.swing.JPanel
     public DisplayScores()
     {
         initComponents();
+        
+        Calendar now = Calendar.getInstance();
+        System.out.println("Run date is : " + (now.get(Calendar.MONTH) + 1) + "/" + 
+                now.get(Calendar.DATE) + "/" + 
+                now.get(Calendar.YEAR));
+        if (now.get(Calendar.YEAR) >= (HandicapMain.WORLDHCYEAR))   // World HC?
+            runDateWorldHandicap = true;                            // Yes
     }
 
     /**
@@ -160,10 +173,7 @@ public class DisplayScores extends javax.swing.JPanel
                 btnCalculateCourseHandicapActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 2;
-        panelCenter.add(btnCalculateCourseHandicap, gridBagConstraints);
+        panelCenter.add(btnCalculateCourseHandicap, new java.awt.GridBagConstraints());
 
         textDisplayScoresIndexAdj.setText("99.9N");
         textDisplayScoresIndexAdj.setFocusable(false);
@@ -190,11 +200,14 @@ public class DisplayScores extends javax.swing.JPanel
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnBackActionPerformed
     {//GEN-HEADEREND:event_btnBackActionPerformed
+        archiveYr = 0;                                      // Turn off in case displaying archive
         tournament = false;                                 // Set not tournament score display
         scoreEditingAllowed = true;                         // Allow editing of scores
         refreshScoreTable(HandicapMain.scoreTableName);     // Refresh scores table
         HandicapMain.resetTitle();                          // Set title in frame
         HandicapMain.lastCard = HandicapMain.MAINMENU;      // Force MAINMENU
+        AddScores.txtAddScoresPCC.setVisible(false);        // Make PCC invisible
+        AddScores.lblAddScoresPCC.setVisible(false);        // Make PCC label invisible
         HandicapMain.cards.show(getParent(), 
             (String) HandicapMain.returnStack.pop());   // Show MAINMENU
     }//GEN-LAST:event_btnBackActionPerformed
@@ -205,7 +218,7 @@ public class DisplayScores extends javax.swing.JPanel
         if (!scoreEditingAllowed)		// Are we in an archive / tournament display
         {
             JOptionPane.showMessageDialog(null, "Editing is not allowed");  // Yes - display message
-            return;                                                         // Return
+            return;                                                         // Return   
         }
             
         String duplicateID = "";                                        // Duplicate IDer (T00:01)
@@ -243,10 +256,14 @@ public class DisplayScores extends javax.swing.JPanel
                             setText(rs.getString("Rating"));            // Rating
                     AddScores.textFieldCourseSlope.
                             setText(rs.getString("Slope"));             // Slope
+                    AddScores.txtAddScoresPCC.
+                            setText(rs.getString("PCC"));               // PCC
                     AddScores.btnAddScoresAdd.
                             setText("Update");                          // change button to update in Add Score
                     AddScores.btnAddScoreDelete.
                             setVisible(true);                           // Make delete button visible
+                    AddScores.lblAddScoresPCC.setVisible(true);         // Set PCC label to visible
+                    AddScores.txtAddScoresPCC.setVisible(true);         // Set PCC field to visible
 
 /*
 *
@@ -273,24 +290,6 @@ public class DisplayScores extends javax.swing.JPanel
                                 break;
                         }
                     }
-
-//                Force select all on all input fields on AddScores screen
-
-                    AddScores.textFieldScore.addFocusListener(new java.awt.event.FocusAdapter()
-                    {
-                        public void focusGained(java.awt.event.FocusEvent evt)
-                        {
-                            SwingUtilities.invokeLater(() ->
-                            {
-                                AddScores.textFieldScore.selectAll();
-                                AddScores.textFieldCourseRating.selectAll();
-                                AddScores.textFieldCourseSlope.selectAll();
-                    //						            	dateChooser.selectAll();
-                            });
-                        }
-                    });
-
-//						MiscMethods.setTabFocus(tabbedPane, DISPLAYSCORESINDEX, ADDSCORESINDEX);
                     tryDuplicate = false;                                           // Found record quit
                 }
                 else                                                                // Date not found
@@ -329,7 +328,7 @@ public class DisplayScores extends javax.swing.JPanel
             return;								// Get out of here
         }
 //      select Name, Rating, Slope, Rating as 'Course Handicap' from COURSE_TBL Order by Name
-        String query = "select Name, Rating, Slope, Rating as 'Course Handicap' from "
+        String query = "select Name, Rating, Slope, Par, Par as 'Course Handicap' from "
                 + HandicapMain.courseTableName + " Order by Name";
 
         try (PreparedStatement pst = SQLiteConnection.connection.
@@ -365,16 +364,35 @@ public class DisplayScores extends javax.swing.JPanel
         }
 
         int lastRow = tableDisplayScores.getRowCount();				// Rows in table
+        double courseRating;
+        int coursePar;
         for (int row = 0; row < lastRow; row++)					// Loop thru all courses
         {
+            
+            double whcAdjust = 0;                                               // Default to non WHC
+            if (worldHandicap)                                                  // WHC?
+            {                                                                   // Yes, adjust
+                courseRating = (double) tableDisplayScores.getModel().
+                    getValueAt(row, 1);                                         // Course rating from JTable
+                Object courseParS = tableDisplayScores.getModel().
+                    getValueAt(row, 3);
+                if (courseParS != null)                                         // Par in table?
+                    coursePar = (int) tableDisplayScores.getModel().
+                        getValueAt(row, 3);                                     // Yes, course par from JTable
+                else
+                    coursePar = 72;                                             // No, just default to 72
+                whcAdjust = courseRating - coursePar;                           // Course rating minus par
+            }
+            
             int courseSlope;
             courseSlope = (int) tableDisplayScores.getModel().
                     getValueAt(row, 2);						// Slope
 
             double courseSlopeD = courseSlope;
-            double courseIndex = (hIndex * courseSlopeD) / 113F;                // CI = (HI * course slope) / 113
+            double courseIndex = (hIndex * (courseSlopeD / 113F)) +
+                    whcAdjust;                                                  // CI = (HI * course slope) / 113 + WHCadj
             int courseIndexI = (int) Math.floor(courseIndex + .5F);		// Round to whole number
-            tableDisplayScores.setValueAt(String.valueOf(courseIndexI), row, 3);    // Course index
+            tableDisplayScores.setValueAt(String.valueOf(courseIndexI), row, 4);    // Course index
         }
         renderColumns(tableDisplayScores);                                      // Set column sizes for table tableDisplayCourses
         scoreDataChanged = true;						// Force redisplay of scores
@@ -416,52 +434,57 @@ public class DisplayScores extends javax.swing.JPanel
  */
     public static void refreshScoreTable(String scoreTableName)
     {
-//		if (recalcHandicapIndex == false)		// Have any scores changed?
-//			return;					// No - just leave as is
-//		recalcHandicapIndex = false;			// Go ahead and rebuild and turn off switch
-/*
- * 		Read the scores TABLE
- */
-//		JTable tableDisplayScores;
-//		tableDisplayScores = Handicap.getTableDisplayScores();			// Where display area resides
-
-/*
- * 			Display date as on TABLE (yyyy-mm-dd)		<date change>
- */
-
-//			String query = "select Date, Course as 'Course Name', T, Score, U,"
-//					+ "Rating, Slope, Differential as 'Index' from " + scoreTableName + " Order by Date DESC";
+        if (scoreTableName.contains("_YrEnd"))
+        {
+            archiveYr = Integer.parseInt(scoreTableName.
+                    substring(11, 15));                         // Get archive year
+        }
 /*
  * 			Display date mm/dd/yy
  */
 //  TODO    Add duplicate ID to process multiple scores on same day
-        String query = "select strftime('%m/%d/', DateField) || "
-                + "substr(strftime('%Y', DateField),3, 2) as Date,"
-/*
-                This code adds duplicate ID -00, -01, etc to date
-                Comment above line, include these 2
-                
-                + "substr(strftime('%Y', DateField),3, 2) || "
-                + "substr(strftime('-%M', DateField),1,3) as Date,"
-*/
-                + " Course as 'Course Name',"
-                + " T, Score, U,"
+
+        worldHandicap = runDateWorldHandicap;                           // Let run date determine WHC
+        newWHFileFormat = true;                                         // File contains PCC
+        if (archiveYr > 0)                                              // Displaying archive data?
+        {
+            if (archiveYr >= HandicapMain.WORLDHCYEAR)                  // Archive yr after WH?
+            {
+                worldHandicap = true;                                   // Yes, set WH on
+                newWHFileFormat = true;                                 // File contains PCC
+            }
+            else
+            {
+                worldHandicap = false;                                  // No
+                newWHFileFormat = false;                                // File does not contain PCC
+            }
+        }
+        
+        String selectTourn = "";                                        // Select all
+         if (tournament)
+             selectTourn = " where T = '" + "T" + "' ";                 // Select on tourn
+         
+        String addPCC = "PCC, ";                                        // For when PCC needed        
+        if (worldHandicap)                                              // World Handicap?
+        {
+            uPosition = HandicapMain.U_POS;                             // Yes, PCC
+        }
+        else
+         {
+            addPCC = "";                                                // No, no PCC
+            uPosition = HandicapMain.U_POS - 1;                         // Account
+//            ratingPosition--;                                           //  for
+//            slopePosition--;                                            //      no
+//            differentialPosition--;                                     //          PCC column
+        }           
+        String query = "select strftime('%m/%d/', DateField) || substr(strftime('%Y', DateField),3, 2) as Date,"
+                + "Course as 'Course Name',"
+                + " T, Score," + addPCC + "U,"
                 + "Rating, Slope,"
                 + " Differential as 'Index'"
-                + " from " + scoreTableName + " Order by DateField DESC";
-
-/*
- * 			Change query if we are only displaying tournament scores
- */
-        if (tournament)
-        {
-            query = "select strftime('%m/%d/', DateField) || substr(strftime('%Y', DateField),3, 2) as Date,"
-                    + "Course as 'Course Name',"
-                    + " T, Score, U,"
-                    + "Rating, Slope,"
-                    + " Differential as 'Index'"
-                    + " from " + scoreTableName + " where T = '" + "T" + "' Order by DateField DESC";
-        }
+//                    + " from " + scoreTableName + " where T = '" + "T" + "' Order by DateField DESC";
+                + " from " + scoreTableName + selectTourn + " Order by DateField DESC";
+//        }
         try (PreparedStatement pst = SQLiteConnection.connection.
                 prepareStatement(query);                            // PST
                 ResultSet rs = pst.executeQuery())                  // Execute query
@@ -514,6 +537,7 @@ public class DisplayScores extends javax.swing.JPanel
  */
 //			int preferredWidth = 0;
 //			Force some widths (Date, T, Score, U)
+
         int width = 95;                         //		Date column
         DisplayScores.tableDisplayScores.getColumnModel().getColumn(HandicapMain.DATE_POS).setMinWidth(width);
         DisplayScores.tableDisplayScores.getColumnModel().getColumn(HandicapMain.DATE_POS).setMaxWidth(width);
@@ -523,9 +547,10 @@ public class DisplayScores extends javax.swing.JPanel
         DisplayScores.tableDisplayScores.getColumnModel().getColumn(HandicapMain.T_POS).setMaxWidth(width);
         DisplayScores.tableDisplayScores.getColumnModel().getColumn(HandicapMain.T_POS).setPreferredWidth(width);
                                                 //		U column
-        DisplayScores.tableDisplayScores.getColumnModel().getColumn(HandicapMain.U_POS).setMinWidth(width);
-        DisplayScores.tableDisplayScores.getColumnModel().getColumn(HandicapMain.U_POS).setMaxWidth(width);
-        DisplayScores.tableDisplayScores.getColumnModel().getColumn(HandicapMain.U_POS).setPreferredWidth(width);
+        DisplayScores.tableDisplayScores.getColumnModel().getColumn(uPosition).setMinWidth(width);
+        DisplayScores.tableDisplayScores.getColumnModel().getColumn(uPosition).setMaxWidth(width);
+        DisplayScores.tableDisplayScores.getColumnModel().getColumn(uPosition).setPreferredWidth(width);
+
         width = 60;				//		Score column
         DisplayScores.tableDisplayScores.getColumnModel().getColumn(HandicapMain.SCORE_POS).setMinWidth(width);
         DisplayScores.tableDisplayScores.getColumnModel().getColumn(HandicapMain.SCORE_POS).setMaxWidth(width);
@@ -541,7 +566,8 @@ public class DisplayScores extends javax.swing.JPanel
         String hi = "NH";							// Assume not enough scores
         DisplayScores.textDisplayScoresIndex.setText(hi);			// Put in display								
 
-        double[] handicapIndex = calculateHandicapIndex(DisplayScores.tableDisplayScores);	// Calculate handicap index and mark used scores
+        double[] handicapIndex = calculateHandicapIndex(DisplayScores.
+                tableDisplayScores);                                              // Calculate handicap index and mark used scores
 
         if (handicapIndex[0] != -99)						// Calculate index?
         {
@@ -550,10 +576,37 @@ public class DisplayScores extends javax.swing.JPanel
         }
         if (handicapIndex[1] != -99)						// Tournament adjustment?
         {
-            hi = String.valueOf(Math.floor((handicapIndex[0] - handicapIndex[1]) * 10) / 10);	// Calculated index
-            DisplayScores.textDisplayScoresIndexAdj.setText(hi + "R");		// Set handicap Index with adjustment
-            DisplayScores.textDisplayScoresIndexAdj.setVisible(true);           // Set adjusted field visible
+            if (worldHandicap)                                                      // World HC?
+            {                                                                       // Yes
+                if (handicapIndex[1] != -99)                                        // Soft/Hard adjustment?
+                {
+                    hi = String.valueOf(Math.floor(handicapIndex[1] * 10) / 10);    // NN.N
+                    DisplayScores.textDisplayScoresIndexAdj.setText(hi + "R");      // Set handicap Index with adjustment
+                    DisplayScores.textDisplayScoresIndexAdj.setVisible(true);       // Set adjusted field visible
+                }
+            }
+            else                                                                    // No - tournament calc
+            {
+                hi = String.valueOf(Math.floor((handicapIndex[0] - 
+                        handicapIndex[1]) * 10) / 10);                              // Calculated index
+                DisplayScores.textDisplayScoresIndexAdj.setText(hi + "R");          // Set handicap Index with adjustment
+                DisplayScores.textDisplayScoresIndexAdj.setVisible(true);           // Set adjusted field visible
+            }
         }
+        
+//      Save HI for calculation next time
+
+        String userHANDICAPHI = HandicapMain.userName + HandicapMain.HANDICAPHI;
+        HandicapMain.handicapPrefs.put(userHANDICAPHI, hi);                         //  Save prev HI
+        try                              
+        {
+            HandicapMain.handicapPrefs.flush();             // Make all preferences changes permanent
+        }
+        catch (BackingStoreException ex)
+        {
+            Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
+        }
+     
     }
     
 /**
@@ -633,20 +686,22 @@ public static double[] calculateHandicapIndex(JTable tableDisplayScores)
 {
         class Indices
         {
-
-                public double differential;
-                public int tableRowNumber;
-
+            public double differential;
+            public int tableRowNumber;
         }
-
+        
+        if (Preferrences.chkBoxPreferencesWHC.
+                isSelected())                           // Non-WHC?
+            worldHandicap = false;                      // Yes
+        Boolean exceptionalScore = false;               // Not an exceptional score
         double[] handicapIndexR = new double [2];
-        handicapIndexR[0] = -99;				// Set to no handicap index
-        handicapIndexR[1] = -99;				// Set to no handicap index adjustment
-        double handicapIndex = -99;			// Handicap index, -99 not enough scores
-        int numberTournamentScores = 0;			// Number of tournament scores
-        double saveDifferential = 0;			// Save differential for ease
-        double tournLowDiffOne = 99;			// Tournament low 1
-        double tournLowDiffTwo = 99;			// Tournament low 2
+        handicapIndexR[0] = -99;                        // Set to no handicap index
+        handicapIndexR[1] = -99;                        // Set to no handicap index adjustment
+        double handicapIndex = -99;                     // Handicap index, -99 not enough scores
+        int numberTournamentScores = 0;                 // Number of tournament scores
+        double saveDifferential;                        // Save differential for ease
+        double tournLowDiffOne = 99;                    // Tournament low 1
+        double tournLowDiffTwo = 99;                    // Tournament low 2
 
         int lastRow = tableDisplayScores.getRowCount();	// Rows in table
         int numberNonNineHoleScores = lastRow;		// Number non-9 hole scores
@@ -671,6 +726,9 @@ public static double[] calculateHandicapIndex(JTable tableDisplayScores)
  */
         int numberNonNineHoleScoresInCurrentRecord = 0;
         int totalOfAllScores = 0;                                   // Accumulate all scores
+        int diffPosition = HandicapMain.DIFFERENTIAL_POS - 1;   // Position of differential old format
+        if (newWHFileFormat)
+            diffPosition++;                                     // Position of differential new format
         for (int row = 0; row < lastRow; row++)                     // Loop thru all scores
         {
             String t = (String) tableDisplayScores.getModel().
@@ -683,10 +741,29 @@ public static double[] calculateHandicapIndex(JTable tableDisplayScores)
                 if ((t == null) || (!(t.equals(HandicapMain.NINEINDICATOR))))                   // Nine hole score?
                 {
                     indexArray[numberNonNineHoleScoresInCurrentRecord] = new Indices();		// No - process
-                    indexArray[numberNonNineHoleScoresInCurrentRecord].
-                            differential = saveDifferential = 
-                            (double) tableDisplayScores.getModel().
-                            getValueAt(row, HandicapMain.DIFFERENTIAL_POS);     // differential
+//                    if (worldHandicap)
+//                      Check for exceptional score marker (!) following differential
+                        String differTest = tableDisplayScores.getModel().
+                                getValueAt(row, diffPosition).toString();           // String differential
+                        if (!StringUtils.isStringNumeric(differTest))               // Is there an exceptioanl marker?
+                        {
+                            differTest = differTest.replaceAll("!", "");            // Get rid of exceptional score marker for calc
+                            exceptionalScore = true;                                // This is an exceptional score
+                        }
+                        Double differTestDbl = Double.parseDouble(differTest);
+                        indexArray[numberNonNineHoleScoresInCurrentRecord].
+                            differential = saveDifferential = differTestDbl;
+                        
+//                        indexArray[numberNonNineHoleScoresInCurrentRecord].
+//                            differential = saveDifferential = 
+//                            (double) tableDisplayScores.getModel().
+//                            getValueAt(row, diffPosition);                          // differential
+
+//                    else
+//                        indexArray[numberNonNineHoleScoresInCurrentRecord].
+//                            differential = saveDifferential = 
+//                            (double) tableDisplayScores.getModel().
+//                            getValueAt(row, HandicapMain.DIFFERENTIAL_POS - 1);   // differential (missing PCC)
                     indexArray[numberNonNineHoleScoresInCurrentRecord].
                             tableRowNumber = row;                               // row #
                     numberNonNineHoleScoresInCurrentRecord++;                   // Count non 9 hole scores in record
@@ -707,11 +784,25 @@ public static double[] calculateHandicapIndex(JTable tableDisplayScores)
                 }
 
             }
-            saveDifferential = (double) tableDisplayScores.getModel().
-                            getValueAt(row, HandicapMain.DIFFERENTIAL_POS);         // Save differential for tournament processing
+//            if (worldHandicap)
+//              Check for exceptional score marker (!) following differential
+                String differTest = tableDisplayScores.getModel().
+                        getValueAt(row, diffPosition).toString();           // String differential
+                if (!StringUtils.isStringNumeric(differTest))
+                    differTest = differTest.replaceAll("!", "");
+                Double differTestDbl = Double.parseDouble(differTest);
+                saveDifferential = differTestDbl;
+                
+//                saveDifferential = (double) tableDisplayScores.getModel().
+//                    getValueAt(row, diffPosition);                                  // Save differential for tournament processing
+
+//            else
+//                saveDifferential = (double) tableDisplayScores.getModel().
+//                    getValueAt(row, HandicapMain.DIFFERENTIAL_POS - 1);             // Save differential for tournament processing
             totalOfAllScores = totalOfAllScores + (int) tableDisplayScores.
                             getModel().getValueAt(row, HandicapMain.SCORE_POS);     // Add score to total
-
+            if (!worldHandicap)                                                     // World handicap?
+            {                                                                       // No - check tournament
             if ((t == null) || (!(t.equals(HandicapMain.TOURNINDICATOR))))          // Tournament score?
             {
                     //  ignore
@@ -749,9 +840,9 @@ public static double[] calculateHandicapIndex(JTable tableDisplayScores)
                                         tournLowDiffTwo = saveDifferential;     // Yes, replace second	
                         }
                     }
-                }                                                               // Not within 
-                
+                }                                                               // Not within   
             }
+            }                                                                   // World handicap, bypass tourn
         }
 /*
  * 
@@ -769,53 +860,95 @@ public static double[] calculateHandicapIndex(JTable tableDisplayScores)
  * 			Calculate number of scores in record that will be used
  * 			
  */
-            int nScores;				// number of scores to use in latest record
+            int hcAdjustment = 0;               // World HC adjustment
+            int nScores;                        // number of scores to use in latest record
             switch (numberNonNineHoleScoresInCurrentRecord)
             {
             case 20:
-                nScores = 10;			// if 20 -> 10
+                nScores = 10;                   // if 20 -> 10
+                if (worldHandicap)              // World HC?
+                    nScores = 8;                // Best 8 of 20
                 break;
 
             case 19:
                 nScores = 9;			// If 19 -> 9
+                if (worldHandicap)              // World HC?
+                    nScores = 7;                // Yes, best 7 of 19
                 break;
 
             case 18:
                 nScores = 8;			// If 18 -> 8
+                if (worldHandicap)              // World HC?
+                    nScores = 6;                // Yes, best 6 of 18
                 break;
 
             case 17:				// If 17 -> 7
                 nScores = 7;
+                if (worldHandicap)              // World HC?
+                    nScores = 6;                // Yes, best 6 of 17
                 break;
 
             case 16:				// If 15 or 16 -> 6
             case 15:
                 nScores = 6;
+                if (worldHandicap)              // World HC?
+                    nScores = 5;                // Yes, best 5 of 15/16
                 break;
 
             case 14:				// If 13 or 14 -> 5	
             case 13:
                 nScores = 5;
+                if (worldHandicap)              // World HC?
+                    nScores = 4;                // Yes, best 6 of 18
                 break;
 
-            case 12:				// If 11 or 12 -> 4
+            case 12:                            // If 11 or 12 -> 4
+                nScores = 4;                   // Same for World HC     
+                break;
+                
             case 11:
                 nScores = 4;
+                if (worldHandicap)              // World HC?
+                    nScores = 3;                // Yes, best 3 of 11
                 break;
-
+                
             case 10:				// if 9 or 10 -> 3
             case 9:
-                nScores = 3;
+                nScores = 3;                    // Same for World HC
                 break;
 
-            case 8:					// If 7 or 8 -> 2
+            case 8:                             // If 7 or 8 -> 2
             case 7:
-                nScores = 2;
+                nScores = 2;                    // Same for World HC
                 break;
 
-            case 6:					// If 5 or 6 -> 1
-            case 5:
+            case 6:                             // If 5 or 6 -> 1
                 nScores = 1;
+                if (worldHandicap)              // World HC?
+                {
+                    nScores = 2;                // Yes, best 2 of 6
+                    hcAdjustment = -1;          // World HC adjustment
+                }
+            case 5:
+                nScores = 1;                    // Same for world HC
+                break;
+                
+            case 4:
+                nScores = 0;                    // Old HC
+                if (worldHandicap)              // World HC?
+                {
+                    nScores = 1;                // Yes, best 1 of 4
+                    hcAdjustment = -1;          // World HC adjustment
+                }
+                break;
+                
+            case 3:
+                nScores = 0;                    // Old HC
+                if (worldHandicap)              // World HC?
+                {
+                    nScores = 1;                // Yes, best 1 of 4
+                    hcAdjustment = -2;          // World HC adjustment
+                }
                 break;
 
             default:				// Less than NH
@@ -862,42 +995,181 @@ public static double[] calculateHandicapIndex(JTable tableDisplayScores)
 * 		Set score used
 */
             double totalDifferential = 0;
+
             for (int row = 0; row < nScores; row++)
             {
-                    tableDisplayScores.setValueAt("*", indexArray[row].tableRowNumber, HandicapMain.U_POS);	// Set used
-                    totalDifferential = totalDifferential + indexArray[row].differential;
+                tableDisplayScores.setValueAt("*", indexArray[row].tableRowNumber, uPosition);	// Set used
+                totalDifferential = totalDifferential + indexArray[row].differential;
 
 //					System.out.println("Row: " + indexArray[row].tableRowNumber + " Index: " + indexArray[row].differential);
-
             }
 /*
 * 		Calculate handicap index
 */
             double scores;
-            scores = nScores;								// Convert to double
-            handicapIndex = Math.floor(((totalDifferential / scores) * .96) * 10) / 10;	// Truncate to .1
+            scores = nScores;                                           // Convert to double
+/*
+            World handicap has a .96 modifier to th HI and truncates to tenths.  WHC rounds to tenths
+*/          
+            double hModifier = .96;                                     // Old modifier
+            double round = 0;                                           // No rounding for non WHC
+            if (worldHandicap)                                          // World HC?
+            {
+                hModifier = 1;                                          // Yes, no adjustment
+                round = .05F;                                           // Round to tenths
+            }
+            handicapIndex = Math.floor(((totalDifferential / scores + round) *
+                    hModifier) * 10) / 10;                              // Truncate to .1
 
 //				Calculate tournament adjustment
 
-            double tournamentAdjustment = -99;						// default no adjustment
-            double two = 2F;
-            if (numberTournamentScores > 1)							// 2 or more tournament scores?
-            {
-                // Make tournament adjustment if handicap index - 2nd lowest tournament diff > 3
-
-                if (handicapIndex - Math.max(tournLowDiffOne, tournLowDiffTwo) > 3)
+            double tournamentAdjustment = -99;                      // default no adjustment
+            if (worldHandicap)                                      // World HC?
+            {                                                       // Yes               
+                String userHANDICAPHI = HandicapMain.userName + HandicapMain.HANDICAPHI;
+                String prevIndexS = HandicapMain.handicapPrefs.get(userHANDICAPHI, 
+                        HandicapMain.NOHI);                                         // Previous HI from preferences
+                if (prevIndexS.equals(HandicapMain.NOHI))
                 {
-                    double tournDiffAverage = (tournLowDiffOne + tournLowDiffTwo) / two;
-                    double tournDiffAverageRnd = Math.floor((tournDiffAverage) * 10) / 10;
-                    tournamentAdjustment = calcTournamentAdjustment(handicapIndex - tournDiffAverageRnd,	
-                            numberTournamentScores);                    // Yes, calculate adjustment
+                    System.out.println("No HI");                                    // Message, get out
+                    prevIndexS = Double.toString(handicapIndex);                    // Make it same as index
                 }
-            }
-            handicapIndexR[0] = handicapIndex;                                  // Set HI
-            handicapIndexR[1] = tournamentAdjustment;				// Set HI adjustment
 
-            return handicapIndexR;                                              // Handicap index and T adjustment
+                if (prevIndexS.equals("NH"))
+                {
+                    System.out.println("No NH");                                    // Message, get out
+                    prevIndexS = Double.toString(handicapIndex);                    // Make it same as index
+                }
+                double prevIndex = Double.parseDouble(prevIndexS);                  // Convert previous index to double
+                
+                double cappedHandicapIndex = 
+                        calcSoftHardCap(handicapIndex, prevIndex);  // Fall into the cap
+                if (cappedHandicapIndex != handicapIndex)           // Capped?
+                    tournamentAdjustment = cappedHandicapIndex;     // Put in tournamentAdjustment
+            }
+            else                                                    // No
+            {                                                       // Adjust for tourn
+                double two = 2F;
+                if (numberTournamentScores > 1)                     // 2 or more tournament scores?
+                {
+                    // Make tournament adjustment if handicap index - 2nd lowest tournament diff > 3
+
+                    if (handicapIndex - Math.max(tournLowDiffOne, tournLowDiffTwo) > 3)
+                    {
+                        double tournDiffAverage = (tournLowDiffOne + tournLowDiffTwo) / two;
+                        double tournDiffAverageRnd = Math.floor((tournDiffAverage) * 10) / 10;
+                        tournamentAdjustment = calcTournamentAdjustment(handicapIndex - tournDiffAverageRnd,	
+                                numberTournamentScores);                    // Yes, calculate adjustment
+                    }
+                }
+            }           
+            handicapIndexR[0] = handicapIndex;                                      // Set HI
+            handicapIndexR[1] = tournamentAdjustment;                               // Set HI adjustment
+            if (exceptionalScore)
+            {
+                handicapIndexR[1] = handicapIndexR[0];                              // Put something in to force (R)
+            }
+
+/*
+        This code determines if the new HI is < the low HI kept in prefs.
+        If it is lower this becpmes the new low.
+*/
+        String userHANDICAPLOWHI = HandicapMain.userName + HandicapMain.HANDICAPLOWHI;
+        String lowHIS = HandicapMain.handicapPrefs.get(userHANDICAPLOWHI, 
+                HandicapMain.NOLOW);                                                // Low HI from preferences
+        String newHI;
+        Double dblLowHI;
+        Double dblNewIndex;
+        boolean putLowHI = false;                                                   // Need ro save low HI
+        if (handicapIndexR[1] == -99)                                               // Adjusted HI?
+        {
+            newHI = Double.toString(handicapIndexR[0]);                             // Use standard HI
+            dblNewIndex = handicapIndexR[0];
+        }
+        else                                                                        // Yes
+        {
+            newHI = Double.toString(handicapIndexR[1]);                             // Use adjusted
+            dblNewIndex = handicapIndexR[1];
+        }
+        if (lowHIS.equals(HandicapMain.NOLOW))                                      // Have one?
+        {
+            Preferrences.textPreferencesLHI.setText(newHI);                         // No Low HI, use what we have
+            putLowHI = true;                                                        // Write to prefs
+        }
+        else
+        {
+            dblLowHI = Double.parseDouble(lowHIS);                                  // Low HI from prefs
+            if (dblNewIndex < dblLowHI)
+            {
+                Preferrences.textPreferencesLHI.setText(newHI);                     // Set new low HI
+                putLowHI = true;                                                    // Write to prefs
+            }
+        }
+        if (putLowHI)                                                               // Write prefs?
+        {
+            HandicapMain.handicapPrefs.put(userHANDICAPLOWHI,newHI);                //  Save low HI
+            try                              
+            {
+                HandicapMain.handicapPrefs.flush();                                 // Make all preferences changes permanent
+            }
+            catch (BackingStoreException ex)
+            {
+                Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+            return handicapIndexR;                                                  // Handicap index and T adjustment
     }
+
+/**
+ * 
+ * @param handicapIndex  - calculated handicap index
+ * @param prevIndex - previous index from handicapPrefs
+ * @return cappedHandicapIndex
+ * 
+ * lowIndex - Lowest index for last 365 days*, stored in preferences, updated on preferences screen
+ * prevIndex - Previous index, stored in preferences, updated on handicap calculation
+ * Soft cap - invoked when (LHI + 3) LT (HI) LT= LHI + 5, increase limited to 50% of increase above
+ * Hard cap - LHI + 5
+ */
+    private static double calcSoftHardCap(double handicapIndex, double prevIndex)
+    {
+        String userHANDICAPLOWHI = HandicapMain.userName + HandicapMain.HANDICAPLOWHI;
+        String lowHIS = HandicapMain.handicapPrefs.get(userHANDICAPLOWHI, 
+                HandicapMain.NOLOW);                                        // Low HI from preferences
+        if (lowHIS.equals(HandicapMain.NOLOW))                              // Have one?
+        {
+            System.out.println("No Low HI, enter in preferences");          // Message, get out
+            lowHIS = "40";                                                  // Set to something
+        }
+        double lowIndex = Double.parseDouble(lowHIS);                       // Convert low index to double
+        double cappedHandicapIndex = handicapIndex;                         // Default capped to existing
+        double softCap = lowIndex + 3F;                                     // Soft cap
+//        double softCapHigh = lowIndex + 5F;
+        double hardCap = lowIndex + 5F;                                     // Hard cap
+        if (handicapIndex > softCap)
+        {
+            if (handicapIndex <= hardCap)
+            {
+/*
+                Capped HI = half the increase above the soft cap
+                ie Low HI = 10
+                   Soft cap starts at 13 (Low HI + 3)
+                   New index is 13.7
+                   1/2 ( 13.7 - 13) = .35
+                  Capped index = cap + .35 = 13.35 (rounded to 13.4)
+*/
+                cappedHandicapIndex = 0.5*(handicapIndex - softCap) + softCap;      // Capped
+                cappedHandicapIndex = Math.floor((cappedHandicapIndex + .05D) 
+                        * 10) / 10;                                                 // Rounded to tenths
+            }
+            else
+            {
+                cappedHandicapIndex = hardCap;                                      // Max
+            }
+        }
+        return cappedHandicapIndex;
+    }
+    
 /**
  * This method checks to see if the date of displayed score is within the past year
  * Returns true if within past year otherwise false
