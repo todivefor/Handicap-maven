@@ -556,40 +556,43 @@ public class DisplayScores extends javax.swing.JPanel
         DisplayScores.tableDisplayScores.getColumnModel().getColumn(HandicapMain.SCORE_POS).setMaxWidth(width);
         DisplayScores.tableDisplayScores.getColumnModel().getColumn(HandicapMain.SCORE_POS).setPreferredWidth(width);
 
-        renderColumns(DisplayScores.tableDisplayScores);				// Set column sizes for table tableDisplayScores
+        renderColumns(DisplayScores.tableDisplayScores);                            // Set column sizes for table tableDisplayScores
 
 //			recalcHandicapIndex = false;				// Don't recalculate until needed
 /*
  * 			Calculate Handicap index
  */
-        DisplayScores.textDisplayScoresIndexAdj.setVisible(false);              // Set adjusted field invisible, assume no adj
-        String hi = "NH";							// Assume not enough scores
-        DisplayScores.textDisplayScoresIndex.setText(hi);			// Put in display								
+        DisplayScores.textDisplayScoresIndexAdj.setVisible(false);                  // Set adjusted field invisible, assume no adj
+        String hi = "NH";                                                           // Assume not enough scores
+        DisplayScores.textDisplayScoresIndex.setText(hi);                           // Put in display								
 
-        double[] handicapIndex = calculateHandicapIndex(DisplayScores.
-                tableDisplayScores);                                              // Calculate handicap index and mark used scores
+        HandicapIndices handicapIndex = calculateHandicapIndex(DisplayScores.
+                tableDisplayScores);                                                // Calculate handicap index and mark used scores
 
-        if (handicapIndex[0] != -99)						// Calculate index?
+        if (handicapIndex.newIndex != -99)                                          // Calculate index?
         {
-            hi = String.valueOf(Math.floor(handicapIndex[0] * 10) / 10);	// Calculated index
-            DisplayScores.textDisplayScoresIndex.setText(hi);			// Set handicap Index without adjustment
+            hi = String.valueOf(Math.floor(handicapIndex.newIndex * 10) / 10);      // Calculated index
+            DisplayScores.textDisplayScoresIndex.setText(hi);                       // Set handicap Index without adjustment
         }
-        if (handicapIndex[1] != -99)						// Tournament adjustment?
+        if (handicapIndex.newIndexAdjusted != -99)                                  // Tournament adjustment?
         {
             if (worldHandicap)                                                      // World HC?
             {                                                                       // Yes
-                if (handicapIndex[1] != -99)                                        // Soft/Hard adjustment?
+                if (handicapIndex.newIndexAdjusted != -99)                          // Soft/Hard adjustment?
                 {
-                    hi = String.valueOf(Math.floor(handicapIndex[1] * 10) / 10);    // NN.N
-                    DisplayScores.textDisplayScoresIndexAdj.setText(hi + "R");      // Set handicap Index with adjustment
+                    hi = String.valueOf(Math.floor(handicapIndex.newIndexAdjusted 
+                            * 10) / 10);                                            // NN.N
+                    DisplayScores.textDisplayScoresIndexAdj.setText(hi + 
+                            handicapIndex.adjustedType);                            // Set handicap Index with adjustment
                     DisplayScores.textDisplayScoresIndexAdj.setVisible(true);       // Set adjusted field visible
                 }
             }
             else                                                                    // No - tournament calc
             {
-                hi = String.valueOf(Math.floor((handicapIndex[0] - 
-                        handicapIndex[1]) * 10) / 10);                              // Calculated index
-                DisplayScores.textDisplayScoresIndexAdj.setText(hi + "R");          // Set handicap Index with adjustment
+                hi = String.valueOf(Math.floor((handicapIndex.newIndex - 
+                        handicapIndex.newIndexAdjusted) * 10) / 10);                // Calculated index
+                DisplayScores.textDisplayScoresIndexAdj.setText(hi +
+                        handicapIndex.adjustedType);                                // Set handicap Index with adjustment
                 DisplayScores.textDisplayScoresIndexAdj.setVisible(true);           // Set adjusted field visible
             }
         }
@@ -600,11 +603,12 @@ public class DisplayScores extends javax.swing.JPanel
         HandicapMain.handicapPrefs.put(userHANDICAPHI, hi);                         //  Save prev HI
         try                              
         {
-            HandicapMain.handicapPrefs.flush();             // Make all preferences changes permanent
+            HandicapMain.handicapPrefs.flush();                                     // Make all preferences changes permanent
         }
         catch (BackingStoreException ex)
         {
-            Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, 
+                    null, ex);
         }
      
     }
@@ -619,9 +623,10 @@ public class DisplayScores extends javax.swing.JPanel
     public static void renderColumns(JTable tableToRender)
     {
         int width;
-        for (int column = 0; column < tableToRender.getColumnCount(); column++)				// Trip through columns
+        for (int column = 0; column < tableToRender.getColumnCount(); column++)     // Trip through columns
         {
-            TableColumn tableColumn = tableToRender.getColumnModel().getColumn(column);
+            TableColumn tableColumn = tableToRender.getColumnModel().
+                    getColumn(column);
 
             int preferredWidth = tableColumn.getMinWidth();
             int maxWidth = tableColumn.getMaxWidth();
@@ -629,11 +634,14 @@ public class DisplayScores extends javax.swing.JPanel
             /*
              * 		This processes the data of the table, excluding the header row
              */
-            for (int row = 0; row < tableToRender.getRowCount(); row++)						// Trip through rows
+            for (int row = 0; row < tableToRender.getRowCount(); row++)             // Trip through rows
             {
-                TableCellRenderer cellRenderer = tableToRender.getCellRenderer(row, column);
-                Component c = tableToRender.prepareRenderer(cellRenderer, row, column);
-                width = c.getPreferredSize().width + tableToRender.getIntercellSpacing().width;
+                TableCellRenderer cellRenderer = tableToRender.getCellRenderer
+                        (row, column);
+                Component c = tableToRender.prepareRenderer
+                        (cellRenderer, row, column);
+                width = c.getPreferredSize().width + tableToRender.
+                        getIntercellSpacing().width;
                 preferredWidth = Math.max(preferredWidth, width);
 
                 //  We've exceeded the maximum width, no need to check other rows
@@ -674,6 +682,13 @@ public class DisplayScores extends javax.swing.JPanel
 
     }
 
+        public static class HandicapIndices
+        {
+            Double newIndex;                                                        // Calculated HI
+            Double newIndexAdjusted;                                                // Adjusted index
+            String adjustedType;                                                    // Type of adjustment                                                 
+        }
+    
 /**
  * 	Method will calculate handicap index from differentials in JTABLE tableDisplayScores
  * 
@@ -682,22 +697,22 @@ public class DisplayScores extends javax.swing.JPanel
  * @param tableDisplayScores
  * @return 
  */
-public static double[] calculateHandicapIndex(JTable tableDisplayScores) 
-{
+    public static HandicapIndices calculateHandicapIndex(JTable tableDisplayScores) 
+    {
         class Indices
         {
             public double differential;
             public int tableRowNumber;
         }
-        
+        HandicapIndices hiIndex = new HandicapIndices();
         if (Preferrences.chkBoxPreferencesWHC.
                 isSelected())                           // Non-WHC?
             worldHandicap = false;                      // Yes
         Boolean exceptionalScore = false;               // Not an exceptional score
         double[] handicapIndexR = new double [2];
-        handicapIndexR[0] = -99;                        // Set to no handicap index
-        handicapIndexR[1] = -99;                        // Set to no handicap index adjustment
-        double handicapIndex = -99;                     // Handicap index, -99 not enough scores
+        hiIndex.newIndex = -99D;                       // Set to no handicap index
+        hiIndex.newIndexAdjusted = -99D;                       // Set to no handicap index adjustment
+        double handicapIndex = -99D;                    // Handicap index, -99 not enough scores
         int numberTournamentScores = 0;                 // Number of tournament scores
         double saveDifferential;                        // Save differential for ease
         double tournLowDiffOne = 99;                    // Tournament low 1
@@ -708,8 +723,8 @@ public static double[] calculateHandicapIndex(JTable tableDisplayScores)
 
         if (lastRow < 1)					// Empty?
         {
-            handicapIndexR[0] = handicapIndex;		// yes - return -99
-            return handicapIndexR;
+            hiIndex.newIndex = handicapIndex;		// yes - return -99
+            return hiIndex;
         }
         int scoresInCurrentRecord = 20;				// # scores in current record - assume 20
         if (lastRow < 20)					// More than 20 scores?
@@ -958,8 +973,8 @@ public static double[] calculateHandicapIndex(JTable tableDisplayScores)
 
             if (nScores == 0)			// Enough scores to calculate index?
             {
-                handicapIndexR[0] = handicapIndex;	// No - return -99
-                return handicapIndexR;
+                hiIndex.newIndex = handicapIndex;	// No - return -99
+                return hiIndex;
             }
 
 /*
@@ -1042,15 +1057,32 @@ public static double[] calculateHandicapIndex(JTable tableDisplayScores)
                 }
                 double prevIndex = Double.parseDouble(prevIndexS);                  // Convert previous index to double
                 
+//              Get low HI from prefs               
+                String userHANDICAPLOWHI = HandicapMain.userName + HandicapMain.HANDICAPLOWHI;
+                String lowHIS = HandicapMain.handicapPrefs.get(userHANDICAPLOWHI, 
+                        HandicapMain.NOLOW);                                        // Low HI from preferences
+                if (lowHIS.equals(HandicapMain.NOLOW))                              // Have one?
+                {
+                    System.out.println("No Low HI, enter in preferences");          // Message, get out
+                    lowHIS = "40";                                                  // Set to something
+                }
+                double lowIndex = Double.parseDouble(lowHIS);                       // Convert low index to double
+//              Apply soft cap?             
                 double cappedHandicapIndex = 
-                        calcSoftHardCap(handicapIndex, prevIndex);  // Fall into the cap
-                if (cappedHandicapIndex != handicapIndex)           // Capped?
-                    tournamentAdjustment = cappedHandicapIndex;     // Put in tournamentAdjustment
+                        calcSoftCap(handicapIndex, lowIndex, hiIndex);              // Check if need soft cap
+              
+                if (cappedHandicapIndex != handicapIndex)                           // Soft capped?
+                {     
+//                  Apply hard cap?
+                    cappedHandicapIndex = 
+                        calcHardCap(cappedHandicapIndex, lowIndex, hiIndex);        // Yes, check for hard cap 
+                    tournamentAdjustment = cappedHandicapIndex;                     // Put soft/hard cap tournamentAdjustment
+                }
             }
-            else                                                    // No
-            {                                                       // Adjust for tourn
-                double two = 2F;
-                if (numberTournamentScores > 1)                     // 2 or more tournament scores?
+            else                                                                    // No
+            {                                                                       // Adjust for tourn
+                double two = 2D;
+                if (numberTournamentScores > 1)                                     // 2 or more tournament scores?
                 {
                     // Make tournament adjustment if handicap index - 2nd lowest tournament diff > 3
 
@@ -1059,15 +1091,15 @@ public static double[] calculateHandicapIndex(JTable tableDisplayScores)
                         double tournDiffAverage = (tournLowDiffOne + tournLowDiffTwo) / two;
                         double tournDiffAverageRnd = Math.floor((tournDiffAverage) * 10) / 10;
                         tournamentAdjustment = calcTournamentAdjustment(handicapIndex - tournDiffAverageRnd,	
-                                numberTournamentScores);                    // Yes, calculate adjustment
+                                numberTournamentScores, hiIndex);                    // Yes, calculate adjustment
                     }
                 }
             }           
-            handicapIndexR[0] = handicapIndex;                                      // Set HI
-            handicapIndexR[1] = tournamentAdjustment;                               // Set HI adjustment
+            hiIndex.newIndex = handicapIndex;                                       // Set HI
+            hiIndex.newIndexAdjusted = tournamentAdjustment;                        // Set HI adjustment
             if (exceptionalScore)
             {
-                handicapIndexR[1] = handicapIndexR[0];                              // Put something in to force (R)
+                hiIndex.newIndexAdjusted = hiIndex.newIndex;                        // Put something in to force (S/H)
             }
 
 /*
@@ -1081,15 +1113,15 @@ public static double[] calculateHandicapIndex(JTable tableDisplayScores)
         Double dblLowHI;
         Double dblNewIndex;
         boolean putLowHI = false;                                                   // Need ro save low HI
-        if (handicapIndexR[1] == -99)                                               // Adjusted HI?
+        if (hiIndex.newIndexAdjusted == -99D)                                       // Adjusted HI?
         {
-            newHI = Double.toString(handicapIndexR[0]);                             // Use standard HI
-            dblNewIndex = handicapIndexR[0];
+            newHI = Double.toString(hiIndex.newIndex);                             // Use standard HI
+            dblNewIndex = hiIndex.newIndex;
         }
         else                                                                        // Yes
         {
-            newHI = Double.toString(handicapIndexR[1]);                             // Use adjusted
-            dblNewIndex = handicapIndexR[1];
+            newHI = Double.toString(hiIndex.newIndexAdjusted);                      // Use adjusted
+            dblNewIndex = hiIndex.newIndexAdjusted;
         }
         if (lowHIS.equals(HandicapMain.NOLOW))                                      // Have one?
         {
@@ -1117,39 +1149,25 @@ public static double[] calculateHandicapIndex(JTable tableDisplayScores)
                 Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-            return handicapIndexR;                                                  // Handicap index and T adjustment
+            return hiIndex;                                                         // Handicap index and T adjustment
     }
 
 /**
  * 
  * @param handicapIndex  - calculated handicap index
- * @param prevIndex - previous index from handicapPrefs
+ * @param lowIndex - low index from handicapPrefs
  * @return cappedHandicapIndex
  * 
  * lowIndex - Lowest index for last 365 days*, stored in preferences, updated on preferences screen
- * prevIndex - Previous index, stored in preferences, updated on handicap calculation
  * Soft cap - invoked when (LHI + 3) LT (HI) LT= LHI + 5, increase limited to 50% of increase above
  * Hard cap - LHI + 5
  */
-    private static double calcSoftHardCap(double handicapIndex, double prevIndex)
+    private static double calcSoftCap(double handicapIndex, double lowIndex, HandicapIndices hiIndex)
     {
-        String userHANDICAPLOWHI = HandicapMain.userName + HandicapMain.HANDICAPLOWHI;
-        String lowHIS = HandicapMain.handicapPrefs.get(userHANDICAPLOWHI, 
-                HandicapMain.NOLOW);                                        // Low HI from preferences
-        if (lowHIS.equals(HandicapMain.NOLOW))                              // Have one?
-        {
-            System.out.println("No Low HI, enter in preferences");          // Message, get out
-            lowHIS = "40";                                                  // Set to something
-        }
-        double lowIndex = Double.parseDouble(lowHIS);                       // Convert low index to double
-        double cappedHandicapIndex = handicapIndex;                         // Default capped to existing
-        double softCap = lowIndex + 3F;                                     // Soft cap
-//        double softCapHigh = lowIndex + 5F;
-        double hardCap = lowIndex + 5F;                                     // Hard cap
+        double cappedHandicapIndex = handicapIndex;                                 // Assume no cap
+        double softCap = lowIndex + 3D;                                             // Soft cap
         if (handicapIndex > softCap)
         {
-            if (handicapIndex <= hardCap)
-            {
 /*
                 Capped HI = half the increase above the soft cap
                 ie Low HI = 10
@@ -1158,15 +1176,31 @@ public static double[] calculateHandicapIndex(JTable tableDisplayScores)
                    1/2 ( 13.7 - 13) = .35
                   Capped index = cap + .35 = 13.35 (rounded to 13.4)
 */
-                cappedHandicapIndex = 0.5*(handicapIndex - softCap) + softCap;      // Capped
-                cappedHandicapIndex = Math.floor((cappedHandicapIndex + .05D) 
-                        * 10) / 10;                                                 // Rounded to tenths
-            }
-            else
-            {
-                cappedHandicapIndex = hardCap;                                      // Max
-            }
+            cappedHandicapIndex = 0.5*(handicapIndex - softCap) + softCap;          // Capped
+            cappedHandicapIndex = Math.floor((cappedHandicapIndex + .05D) 
+                    * 10) / 10;                                                     // Rounded to tenths
+            hiIndex.adjustedType = "S";                                             // Soft cap
         }
+        return cappedHandicapIndex;
+    }
+
+    /**
+     * This method checks for and applies hard cap if 5 above low index
+     * @param handicapIndex - calculated index or soft capped index
+     * @param lowIndex - low index from prefs
+     * @return 
+     */
+    private static double calcHardCap(double handicapIndex, double lowIndex, HandicapIndices hiIndex)
+    {
+        double hardCap = lowIndex + 5D;                                             // Hard cap
+        double cappedHandicapIndex = handicapIndex;                                 // Default capped to existing
+        if (handicapIndex > hardCap)
+        {
+            cappedHandicapIndex = hardCap;                                          // Capped
+            cappedHandicapIndex = Math.floor((cappedHandicapIndex + .05D) 
+                    * 10) / 10;                                                     // Rounded to tenths
+            hiIndex.adjustedType = "H";                                             // Hard cap
+        }       
         return cappedHandicapIndex;
     }
     
@@ -1202,7 +1236,7 @@ public static double[] calculateHandicapIndex(JTable tableDisplayScores)
         return withinYr;
     }
 
-    private static double calcTournamentAdjustment(double handicapIndex, int numberTournamentScores)
+    private static double calcTournamentAdjustment(double handicapIndex, int numberTournamentScores, HandicapIndices hiIndex)
     {
 
         //  Tournament adjustment table
@@ -1283,6 +1317,7 @@ public static double[] calculateHandicapIndex(JTable tableDisplayScores)
                 break;
             }
         }
+        hiIndex.adjustedType = "R";                                                 // Tournament adjustment
         return tournTable[row][column];					// Amount of adjustment
     }
     

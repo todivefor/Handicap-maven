@@ -68,11 +68,15 @@ import org.todivefor.stringutils.StringUtils;
  *      Select all for input fields set in "After-All-Set Code"* 
  *      Low HI maintained
  *      Added HandicapLauncher
+ * 
+ * 0.1.6
+ *      Changed handicapIndex[] to class HandicapIndices in DisplayScores.java
+ *      Fixed (DisplayScores) problem with soft/hard cap. Soft cap needs to be applied and then check result for hard cap
  */
 public class HandicapMain extends JFrame 
 {
-        public static final String VERSION = "0.1.5";               // Application version used in "About"
-        public static final String REVISIONDATE = "05/22/2020";     // Revision date
+        public static final String VERSION = "0.1.6";               // Application version used in "About"
+        public static final String REVISIONDATE = "05/28/2020";     // Revision date
         public static final boolean TEST = false;                    // use test preferences
 /*
  * 	Components referenced from other classes
