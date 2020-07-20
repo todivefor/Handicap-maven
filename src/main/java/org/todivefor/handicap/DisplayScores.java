@@ -17,7 +17,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.prefs.BackingStoreException;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -25,6 +24,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import net.proteanit.sql.DbUtils;
+import org.todivefor.handicap.process.PrefsProc;
 import org.todivefor.iconutils.IconUtils;
 import org.todivefor.stringutils.StringUtils;
 
@@ -600,16 +600,8 @@ public class DisplayScores extends javax.swing.JPanel
 //      Save HI for calculation next time
 
         String userHANDICAPHI = HandicapMain.userName + HandicapMain.HANDICAPHI;
-        HandicapMain.handicapPrefs.put(userHANDICAPHI, hi);                         //  Save prev HI
-        try                              
-        {
-            HandicapMain.handicapPrefs.flush();                                     // Make all preferences changes permanent
-        }
-        catch (BackingStoreException ex)
-        {
-            Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, 
-                    null, ex);
-        }
+        PrefsProc.putPref(userHANDICAPHI, hi);                                      //  Save prev HI
+        PrefsProc.flushPref();                                                      // Make all preferences changes permanent
      
     }
     
@@ -705,6 +697,7 @@ public class DisplayScores extends javax.swing.JPanel
             public int tableRowNumber;
         }
         HandicapIndices hiIndex = new HandicapIndices();
+        hiIndex.adjustedType = "";                                                  // Init adjustment type (no adj)
         if (Preferrences.chkBoxPreferencesWHC.
                 isSelected())                           // Non-WHC?
             worldHandicap = false;                      // Yes
@@ -1038,11 +1031,12 @@ public class DisplayScores extends javax.swing.JPanel
 
 //				Calculate tournament adjustment
 
-            double tournamentAdjustment = -99;                      // default no adjustment
-            if (worldHandicap)                                      // World HC?
-            {                                                       // Yes               
-                String userHANDICAPHI = HandicapMain.userName + HandicapMain.HANDICAPHI;
-                String prevIndexS = HandicapMain.handicapPrefs.get(userHANDICAPHI, 
+            double tournamentAdjustment = -99;                                      // default no adjustment
+            if (worldHandicap)                                                      // World HC?
+            {                                                                       // Yes               
+                String userHANDICAPHI = HandicapMain.userName + HandicapMain.
+                        HANDICAPHI;
+                String prevIndexS = PrefsProc.getPref(userHANDICAPHI, 
                         HandicapMain.NOHI);                                         // Previous HI from preferences
                 if (prevIndexS.equals(HandicapMain.NOHI))
                 {
@@ -1059,7 +1053,7 @@ public class DisplayScores extends javax.swing.JPanel
                 
 //              Get low HI from prefs               
                 String userHANDICAPLOWHI = HandicapMain.userName + HandicapMain.HANDICAPLOWHI;
-                String lowHIS = HandicapMain.handicapPrefs.get(userHANDICAPLOWHI, 
+                String lowHIS = PrefsProc.getPref(userHANDICAPLOWHI, 
                         HandicapMain.NOLOW);                                        // Low HI from preferences
                 if (lowHIS.equals(HandicapMain.NOLOW))                              // Have one?
                 {
@@ -1107,7 +1101,7 @@ public class DisplayScores extends javax.swing.JPanel
         If it is lower this becpmes the new low.
 */
         String userHANDICAPLOWHI = HandicapMain.userName + HandicapMain.HANDICAPLOWHI;
-        String lowHIS = HandicapMain.handicapPrefs.get(userHANDICAPLOWHI, 
+        String lowHIS = PrefsProc.getPref(userHANDICAPLOWHI, 
                 HandicapMain.NOLOW);                                                // Low HI from preferences
         String newHI;
         Double dblLowHI;
@@ -1139,15 +1133,8 @@ public class DisplayScores extends javax.swing.JPanel
         }
         if (putLowHI)                                                               // Write prefs?
         {
-            HandicapMain.handicapPrefs.put(userHANDICAPLOWHI,newHI);                //  Save low HI
-            try                              
-            {
-                HandicapMain.handicapPrefs.flush();                                 // Make all preferences changes permanent
-            }
-            catch (BackingStoreException ex)
-            {
-                Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            PrefsProc.putPref(userHANDICAPLOWHI, newHI);                            //  Save low HI
+            PrefsProc.flushPref();                                                  // Make all preferences changes permanent
         }
             return hiIndex;                                                         // Handicap index and T adjustment
     }

@@ -7,6 +7,7 @@ package org.todivefor.handicap;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,11 +16,11 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.prefs.BackingStoreException;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import org.todivefor.handicap.process.PrefsProc;
 import org.todivefor.iconutils.IconUtils;
 import org.todivefor.stringutils.StringUtils;
 
@@ -300,20 +301,21 @@ public class AddScores extends javax.swing.JPanel
         if (!HandicapMain.returnStack.peek().equals(HandicapMain.DISPLAYSCORES))    // Already returning to DISPLAYSCORES             
             HandicapMain.returnStack.push(HandicapMain.DISPLAYSCORES);              // No, push DISPLAYSCORES to returnStack 
         deleteRow();
-        DisplayScores.scoreDataChanged = true;                          // Force HI recalc
-        DisplayScores.tournament = false;                               // Set displaying T scores off
-        DisplayScores.refreshScoreTable(HandicapMain.scoreTableName);	// Delete, must redisplay
+        DisplayScores.scoreDataChanged = true;                                      // Force HI recalc
+        DisplayScores.tournament = false;                                           // Set displaying T scores off
+        DisplayScores.refreshScoreTable(HandicapMain.scoreTableName);               // Delete, must redisplay
         chckbxAddScoresTournamentScore.setSelected(false);				// Set tournament off
-        if (HandicapMain.inicatorTournOrNineOnDB.equals(HandicapMain.NINEINDICATOR))	// Was 9 set in record?
+        if (HandicapMain.inicatorTournOrNineOnDB.equals(HandicapMain.
+                NINEINDICATOR))	// Was 9 set in record?
         {
-            HandicapMain.handicapPrefs.remove(HandicapMain.HANDICAPNINEHOLE); 	// Yes, turn off 9 hole hanging
-            HandicapMain.inicatorTournOrNineOnDB = null;			// Set off to be safe
+            PrefsProc.removePref(HandicapMain.HANDICAPNINEHOLE);                    // Yes, turn off 9 hole hanging
+            HandicapMain.inicatorTournOrNineOnDB = null;                            // Set off to be safe
         }
-        chckbxAddScoresNineHoleScore.setSelected(false);			// Set nine hole off
-        btnAddScoresAdd.setText("Add");					// change button back to Add in Add Score
-        btnAddScoreDelete.setVisible(false);				// Make delete button not visible
+        chckbxAddScoresNineHoleScore.setSelected(false);                            // Set nine hole off
+        btnAddScoresAdd.setText("Add");                                             // change button back to Add in Add Score
+        btnAddScoreDelete.setVisible(false);                                        // Make delete button not visible
         HandicapMain.cards.show(getParent(), 
-                (String) HandicapMain.returnStack.pop());               // Selec DisplayScores card
+                (String) HandicapMain.returnStack.pop());                           // Selec DisplayScores card
     }//GEN-LAST:event_btnAddScoreDeleteActionPerformed
 /**
  *  This method deletes row from SCORE_TBL pointed at by DisplayScores.saveDate
@@ -342,9 +344,9 @@ public class AddScores extends javax.swing.JPanel
     {//GEN-HEADEREND:event_btnAddScoresAddActionPerformed
         if (!HandicapMain.returnStack.peek().equals(HandicapMain.DISPLAYSCORES))    // Already returning to DISPLAYSCORES             
             HandicapMain.returnStack.push(HandicapMain.DISPLAYSCORES);              // No, push DISPLAYSCORES to returnStack
-        boolean success = false;                            // Determine success from addOrUpdate method                                                      
-        String nineHoleHang = HandicapMain.handicapPrefs.get(HandicapMain.HANDICAPNINEHOLE,
-                HandicapMain.NONH);                         // 9 hole hanging in preferences
+        boolean success = false;                                                    // Determine success from addOrUpdate method                                                      
+        String nineHoleHang = PrefsProc.getPref(HandicapMain.HANDICAPNINEHOLE,
+                HandicapMain.NONH);                                                 // 9 hole hanging in preferences
 
 /*
  * 				*******	
@@ -478,45 +480,37 @@ public class AddScores extends javax.swing.JPanel
                 + //				"DateSort DATETIME NOT NULL, " +
                 "PRIMARY KEY(DateField))";
         try (PreparedStatement pst = SQLiteConnection.connection.
-                prepareStatement(query))                            // PST
+                prepareStatement(query))                                            // PST
         {
-            pst.execute();                                          // Execute query
-                                                                    // Close Ptrepared Statement
+            pst.execute();                                                          // Execute query
+                                                                                    // Close Ptrepared Statement
         }
         catch (SQLException e1)         // Assuming creating duplicate table   
         {
             JOptionPane.showMessageDialog(null, "Duplicate SCORE table,"
                     + " using previous: " + HandicapMain.scoreTableName,
                     "SCORE table change", JOptionPane.ERROR_MESSAGE);
-            e1.printStackTrace();                                   // Print trace in case
-            return;                                                 // Just get out
+            e1.printStackTrace();                                                   // Print trace in case
+            return;                                                                 // Just get out
         }                
 /*
  * Set score table in in preferences
  * Setup a new variable to be used in all score DB queries
  */
-            if (!userName.contains("YrEnd"))                        // Archive ScoreTable?
+            if (!userName.contains("YrEnd"))                                        // Archive ScoreTable?
             {
-                HandicapMain.handicapPrefs.put(HandicapMain.
-                        HANDICAPSCORETABLENAME,
-                        HandicapMain.scoreTableName);               //  No, save the new in preference
-                try                              
-                {
-                    HandicapMain.handicapPrefs.flush();             // Make all preferences changes permanent
-                }
-                catch (BackingStoreException ex)
-                {
-                    Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                PrefsProc.putPref(HandicapMain.HANDICAPSCORETABLENAME,
+                        HandicapMain.scoreTableName);                               //  No, save the new in preference
+                PrefsProc.flushPref();                                              // Make all preferences changes permanen
             } 
-            else                // This is an archive file, strip off YrEndYYYY_ to get original
+            else                                                                    // This is an archive file, strip off YrEndYYYY_ to get original
             {
-                int yrEndNameLoc = userName.indexOf("YrEnd");       // Location of "YrEnd"
+                int yrEndNameLoc = userName.indexOf("YrEnd");                       // Location of "YrEnd"
                 String yrEndName = HandicapMain.scoreTableName.
-                        substring(yrEndNameLoc,yrEndNameLoc + 10);  // YrEnd-YYYY_
+                        substring(yrEndNameLoc,yrEndNameLoc + 10);                  // YrEnd-YYYY_
                 HandicapMain.scoreTableName = 
                         HandicapMain.scoreTableName.
-                        replace(yrEndName, "");                     // Strip off "YrEnd-YYYY_"
+                        replace(yrEndName, "");                                     // Strip off "YrEnd-YYYY_"
             }
     }
     
@@ -597,43 +591,44 @@ public class AddScores extends javax.swing.JPanel
             * 
              */
             if (!(chckbxAddScoresNineHoleScore.isSelected() || 
-                    chckbxAddScoresTournamentScore.isSelected()))   // T or 9?
+                    chckbxAddScoresTournamentScore.isSelected()))                   // T or 9?
             {
-                pst.setString(T_POS_SQL, "");                       // No, Turn off, nothing special
+                pst.setString(T_POS_SQL, "");                                       // No, Turn off, nothing special
                 if ((HandicapMain.inicatorTournOrNineOnDB != null)
                         && (HandicapMain.inicatorTournOrNineOnDB.
-                                equals(HandicapMain.NINEINDICATOR)))    // Was 9 set in DB recored?
+                                equals(HandicapMain.NINEINDICATOR)))                // Was 9 set in DB recored?
                 {
-                    HandicapMain.handicapPrefs.remove(HandicapMain.
-                            HANDICAPNINEHOLE);                      // Yes so we must be turning it off
-                    HandicapMain.inicatorTournOrNineOnDB = null;    // Turn off to be safe
+                    PrefsProc.removePref(HandicapMain.HANDICAPNINEHOLE);            // Yes so we must be turning it off
+                    HandicapMain.inicatorTournOrNineOnDB = null;                    // Turn off to be safe
                 }
             } 
             else                                                                    // 9 hole score?
              if (chckbxAddScoresNineHoleScore.isSelected())				// 9 hole score
                 {
                     thisNineHole = true;                                            // 9 hole score
-                    String nineHoleHang = HandicapMain.handicapPrefs.get(HandicapMain.HANDICAPNINEHOLE,
-                            HandicapMain.NONH);                                     // Get 9 hole hanging from preferences
+                    String nineHoleHang = PrefsProc.getPref(HandicapMain.
+                            HANDICAPNINEHOLE,HandicapMain.NONH);                    // Get 9 hole hanging from preferences
                     if (nineHoleHang.equals(HandicapMain.NONH))                     // 9 hole score hanging?
                     {
                         pst.setString(T_POS_SQL, HandicapMain.NINEINDICATOR);       // No - set in table
-                        HandicapMain.handicapPrefs.put(HandicapMain.HANDICAPNINEHOLE, "yes");   // Set hanging 9 hole score
+                        PrefsProc.putPref(HandicapMain.HANDICAPNINEHOLE, "yes");    // Set hanging 9 hole score
                     } 
-                    else								// 2nd nine hole score, must combine
+                    else                                                            // 2nd nine hole score, must combine
                     {
-                        int newNineHole = Integer.parseInt(textFieldScore.getText());   // Score just added
-                        combineNineHoleScores();                                        // Combine 2 9 hole scores
+                        int newNineHole = Integer.parseInt(textFieldScore.
+                                getText());                                         // Score just added
+                        combineNineHoleScores();                                    // Combine 2 9 hole scores
 
     /*
      * 		Create combined course name (Combined, first nine date, first score, second score)
      */
-                        String combinedName = "Combined " + displayDateToTableDate(DisplayScores.saveDate) + " "
-                                + (Integer.parseInt(textFieldScore.getText()) - newNineHole) + " "
-                                + newNineHole;                                              // Combined course name
-                        pst.setString(COURSE_POS_SQL, combinedName);                        // Set course to combined
-                        pst.setString(T_POS_SQL, "");                                       // Turn off 9 hole score indicator
-                        HandicapMain.handicapPrefs.remove(HandicapMain.HANDICAPNINEHOLE);   // Set 9 hole score combined
+                        String combinedName = "Combined " + 
+                                displayDateToTableDate(DisplayScores.saveDate) + 
+                                " " + (Integer.parseInt(textFieldScore.getText()) 
+                                - newNineHole) + " " + newNineHole;                 // Combined course name
+                        pst.setString(COURSE_POS_SQL, combinedName);                // Set course to combined
+                        pst.setString(T_POS_SQL, "");                               // Turn off 9 hole score indicator
+                        PrefsProc.removePref(HandicapMain.HANDICAPNINEHOLE);        // Set 9 hole score combined
                     }
 
                 } 
@@ -793,12 +788,11 @@ public class AddScores extends javax.swing.JPanel
  *      Update dblDifferential and 19 others.
  */
         String userHANDICAPHI = HandicapMain.userName + HandicapMain.HANDICAPHI;
-        String prevIndexS = HandicapMain.handicapPrefs.get(userHANDICAPHI, 
-                HandicapMain.NOHI);                                 // Previous HI from preferences
+        String prevIndexS = PrefsProc.getPref(userHANDICAPHI, HandicapMain.NOHI);   // Previous HI from preferences
         if (prevIndexS.equals(HandicapMain.NOHI))
         {
-            System.out.println("No HI");                            // Message, get out
-            prevIndexS = Double.toString(0.0);                      // Make it same as index
+            System.out.println("No HI");                                            // Message, get out
+            prevIndexS = Double.toString(0.0);                                      // Make it same as index
         }
 
         if (prevIndexS.equals("NH"))
@@ -1080,6 +1074,38 @@ public class AddScores extends javax.swing.JPanel
 
         getCourse((String) comboBoxCourse.getSelectedItem());           // Lookup course, then rating and slope
 
+    }
+    
+/**
+ * This method fills the Add Scores course combobox
+ * Adds course combobox listener when combobox filled
+ * @param connection
+ * @param courseTableName
+ */
+
+    public static void fillCourseComboBox(Connection connection, 
+            String courseTableName)
+    {     
+        comboBoxCourse.removeActionListener(AddScores.courseListener);              // Remove listener for course combobox
+        comboBoxCourse.removeAllItems();                                            // clear combobox
+        try
+        {
+//              select * from courseTable 
+            String query = "select * from " + courseTableName + "";
+            PreparedStatement pst = connection.prepareStatement(query);
+            ResultSet rs = pst.executeQuery();
+
+            while (rs.next())
+            {
+                comboBoxCourse.addItem(rs.getString("Name"));                       //  Add course to combo box
+            }
+            rs.close();                                                             // Close result set
+        } 
+        catch (Exception e1)
+        {
+            e1.printStackTrace();
+        }
+        comboBoxCourse.addActionListener(AddScores.courseListener);                 // Add listener for course combobox
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import net.proteanit.sql.DbUtils;
+import static org.todivefor.handicap.HandicapMain.courseTableName;
 import org.todivefor.iconutils.IconUtils;
 import org.todivefor.stringutils.StringUtils;
 
@@ -30,9 +31,13 @@ public class MaintainCourses extends javax.swing.JPanel
  *  Creates new form MaintainCourses
  */
     
-    public MaintainCourses()
+    public MaintainCourses(boolean pathSet)
     {
         initComponents();
+        
+        if (pathSet)                                                                // DB open?
+            refreshCourseTable(SQLiteConnection.connection, 
+                HandicapMain.courseTableName);                                      // Yes, fill course table combo
              
     }
 
@@ -529,42 +534,11 @@ public class MaintainCourses extends javax.swing.JPanel
         {
             e1.printStackTrace();
         }
-        DisplayScores.renderColumns(MaintainCourses.tableDisplayCourses);	// Set column sizes for table tableDisplayCourses
+        DisplayScores.renderColumns(MaintainCourses.tableDisplayCourses);           // Set column sizes for table tableDisplayCourses
 
-        fillComboBox(connection, courseTableName); 		// Load course comboBox
+        AddScores.fillCourseComboBox(connection, courseTableName);                  // Load course comboBox
     }
     
-/**
- * This method fills the Add Scores course combobox
- * Adds course combobox listener when combobox filled
- * @param connection
- */
-
-    public static void fillComboBox(Connection connection, String courseTableName)
-    {     
-        AddScores.comboBoxCourse.removeActionListener(AddScores.
-                courseListener);                                            // Remove listener for course combobox
-        AddScores.comboBoxCourse.removeAllItems();                          // clear combobox
-        try
-        {
-//              select * from courseTable 
-            String query = "select * from " + courseTableName + "";
-            PreparedStatement pst = connection.prepareStatement(query);
-            ResultSet rs = pst.executeQuery();
-
-            while (rs.next())
-            {
-                AddScores.comboBoxCourse.addItem(rs.getString("Name")); //  Add course to combo box
-            }
-            rs.close();                                                 // Close result set
-        } 
-        catch (Exception e1)
-        {
-            e1.printStackTrace();
-        }
-        AddScores.comboBoxCourse.addActionListener(AddScores.
-                courseListener);                                        // Add listener for course combobox
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddCourseExit;
     private javax.swing.JButton btnDelete;

@@ -6,7 +6,7 @@
 package org.todivefor.handicap;
 
 import java.util.Date;
-import javax.swing.SwingUtilities;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -18,9 +18,42 @@ public class HandicapMainMenu extends javax.swing.JPanel
     /**
      * Creates new form HadicapMainMenu
      */
-    public HandicapMainMenu()
+    public HandicapMainMenu(String dbPath)
     {
         initComponents();
+        
+    /*
+     * 
+     * 	Check to see if Handicap DB has been initialized.
+     * 	If not, don't allow anything until it has.
+     * 
+     */
+        if (dbPath.equals(HandicapMain.NODB))                                       // path to DB set?
+        {
+            /*
+             * 
+             * Handicap DB has not been setup, do not allow 
+             * anything until it is
+             * 
+             */
+            btnAddScores.setVisible(false);                                         // Do not display Add Scores button
+            btnDisplayScores.setVisible(false);                                     // Do not display Display Scores button
+            btnEditCourses.setVisible(false);                                       // Do not display Edit Courses button
+
+            JOptionPane.showMessageDialog(null, "DB has not been "
+                    + "initialized,\n"
+                    + "go to File menu and select New "
+                    + "DB to create a new DB,\n"
+                    + "or Switch DB to switch to an existing DB.");
+        }
+        else                                                                        // Yes path to DB set
+        {
+            //  Set all buttons to visible
+            btnAddScores.setVisible(true);                                          // Display Add Scores button
+            btnDisplayScores.setVisible(true);                                      // Display Display Scores button
+            btnEditCourses.setVisible(true);                                        // Display Edit Courses button
+            SQLiteConnection.connection = SQLiteConnection.dbConnector(dbPath);     // Open handicap DB
+        }
     }
 
     /**

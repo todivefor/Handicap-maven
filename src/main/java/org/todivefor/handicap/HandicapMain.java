@@ -10,10 +10,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Stack;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -24,6 +20,7 @@ import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 import net.proteanit.sql.DbUtils;
+import org.todivefor.handicap.process.PrefsProc;
 import org.todivefor.stringutils.StringUtils;
 //import org.todivefor.rxcardlayout.RXCardLayout;                     // <RXCardlayout>
 
@@ -72,11 +69,18 @@ import org.todivefor.stringutils.StringUtils;
  * 0.1.6
  *      Changed handicapIndex[] to class HandicapIndices in DisplayScores.java
  *      Fixed (DisplayScores) problem with soft/hard cap. Soft cap needs to be applied and then check result for hard cap
+ * 
+ * 0.1.7
+ *      Setup Preferences read / write as its own class
+ *      Fixed problem with uninitialized type of HI adjustment
+ *      Reorganized initialization code to HandicapMainMenu, MaintainCourses, and Preferrrnces constructors
+ *      Move fillCourseComboBox() to AddScores
+ *      Fixed & improved delete score year - refreshScoreTable
  */
 public class HandicapMain extends JFrame 
 {
-        public static final String VERSION = "0.1.6";               // Application version used in "About"
-        public static final String REVISIONDATE = "05/28/2020";     // Revision date
+        public static final String VERSION = "0.1.7";               // Application version used in "About"
+        public static final String REVISIONDATE = "07/20/2020";     // Revision date
         public static final boolean TEST = false;                    // use test preferences
 /*
  * 	Components referenced from other classes
@@ -94,8 +98,6 @@ public class HandicapMain extends JFrame
 	public static String userName = null;                      // Who this is
 	
 	public static String operatingSystem;                       // OS
-	
-	public static Preferences handicapPrefs;                    // preferences object
 	
 //	Preference file constants
 	
@@ -167,7 +169,7 @@ public class HandicapMain extends JFrame
 	final static String THEME = "Ocean";                    // Default theme for metal
 	public static String lookAndFeel = null;                // Set to nothing
         public static final int WORLDHCYEAR = 2020;
-        String className;                                       // Fully qualified class name for handicapPrefs
+        String className;                                       // Fully qualified class name for preferences node
 
     /**
      * Creates new form HandicapMain
@@ -190,27 +192,27 @@ public class HandicapMain extends JFrame
  * 
  * 
  */
-        className = this.getClass().getName();                      // Class name (use as node)
-        if (TEST)                                                   // Is this TEST?
+        className = this.getClass().getName();                                      // Class name (use as node)
+        if (TEST)                                                                   // Is this TEST?
         {
             JOptionPane.showMessageDialog(null, "Running with TEST preferences");   // Yes - tell
-            className = className + ".test";                        // Override package name
+            className = className + ".test";                                        // Override package name
         }
-        handicapPrefs = Preferences.userRoot().node(className);     // "org.handicap.HandicapMain"
+        PrefsProc.prefsNode(className);                                             // "org.handicap.HandicapMain"
 
 /*
         Setup look and feel from prefs
 */
 
-        lookAndFeel = handicapPrefs.get(HANDICAPLOOKANDFEEL, NOLF); // Get look and feel from preferences
-        String theme = handicapPrefs.get(HANDICAPTHEME, NOTH);      // Get theme if metal
-        if (lookAndFeel.equals(NOLF))                               // L & F setup?
+        lookAndFeel = PrefsProc.getPref(HANDICAPLOOKANDFEEL, NOLF);                 // Get look and feel from preferences
+        String theme = PrefsProc.getPref(HANDICAPTHEME, NOTH);                      // Get theme if metal
+        if (lookAndFeel.equals(NOLF))                                               // L & F setup?
         {
-            initLookAndFeel(LOOKANDFEEL, THEME);                    // No, pass default System, Ocean
+            initLookAndFeel(LOOKANDFEEL, THEME);                                    // No, pass default System, Ocean
         } 
-        else                                                        // Yes
+        else                                                                        // Yes
         {
-            initLookAndFeel(lookAndFeel, theme);                    // Use what we got for L & F
+            initLookAndFeel(lookAndFeel, theme);                                    // Use what we got for L & F
         }
         
 //      Build Frame
@@ -471,8 +473,8 @@ public class HandicapMain extends JFrame
     private void mntmPreferrencesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmPreferrencesActionPerformed
     {//GEN-HEADEREND:event_mntmPreferrencesActionPerformed
       
-        String lowHI = handicapPrefs.get(userName + HANDICAPLOWHI, NOHI);   // Get low HI
-        if (!lowHI.equals(NOHI))                                            // Get one?
+        String lowHI = PrefsProc.getPref(userName + HANDICAPLOWHI, NOHI);           // Get low HI
+        if (!lowHI.equals(NOHI))                                                    // Get one?
         {
             Preferrences.textPreferencesLHI.setText(lowHI);
         }
@@ -480,16 +482,16 @@ public class HandicapMain extends JFrame
         
         Preferrences.comboBoxPreferencesPlayer.setSelectedItem(userName);
         
-        if (HandicapMain.returnStack.empty())                       // Come frome place?
+        if (HandicapMain.returnStack.empty())                                       // Come frome place?
         {
-            HandicapMain.returnStack.push(HandicapMain.MAINMENU);   // No, push MAINMENU
+            HandicapMain.returnStack.push(HandicapMain.MAINMENU);                   // No, push MAINMENU
         }
-        else                                                        // Yes
+        else                                                                        // Yes
         {     
-            returnStack.push(lastCard);                             // Where we came from
+            returnStack.push(lastCard);                                             // Where we came from
         }
-        setFrameTitle("Handicap Preferences - " + userName);        // Set frame title
-        cards.show(getContentPane(), PREFERRENCES);                 // Show preferences card
+        setFrameTitle("Handicap Preferences - " + userName);                        // Set frame title
+        cards.show(getContentPane(), PREFERRENCES);                                 // Show preferences card
     }//GEN-LAST:event_mntmPreferrencesActionPerformed
 
     private void mntmAboutActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmAboutActionPerformed
@@ -538,75 +540,57 @@ public class HandicapMain extends JFrame
             else                                                                    // Yes - first time thru
             {
                 SQLiteConnection.closeHandicapDB(SQLiteConnection.connection);      // DB open so, close it
-                handicapPrefs.remove(HANDICAPDB);                                   // Remove path from prefs
+                PrefsProc.removePref(HANDICAPDB);                                   // Remove path from prefs
                 SQLiteConnection.connection = SQLiteConnection.dbConnector(path);   // Open the new DB
             }
-            userName = JOptionPane.showInputDialog("Your first name");  // Get user name
-            setTitle("Handicap - " + userName);                         // Set screen title "Handicap - userName"
-            handicapPrefs.put(HANDICAPUSERNAME, userName);              // Save user name in preferences
-            AddScores.createScoreTable(userName);                       // Create SCORE table
-            MaintainCourses.createCourseTable(userName);                // Create COURSE Table
+            userName = JOptionPane.showInputDialog("Your first name");              // Get user name
+            setTitle("Handicap - " + userName);                                     // Set screen title "Handicap - userName"
+            PrefsProc.putPref(HANDICAPUSERNAME, userName);                          // Save user name in preferences
+            AddScores.createScoreTable(userName);                                   // Create SCORE table
+            MaintainCourses.createCourseTable(userName);                            // Create COURSE Table
             // New DB
-            DisplayScores.scoreDataChanged = true;			// Must force redisplay scores
-            handicapPrefs.put(HANDICAPDB, path);				// Save the new DB in preference
-            try
-            {
-                handicapPrefs.flush();                                  // Make changes permanent
-            }
-            catch (BackingStoreException ex)
-            {
-                Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            DisplayScores.scoreDataChanged = true;                                  // Must force redisplay scores
+            PrefsProc.putPref(HANDICAPDB, path);                                    // Save the new DB in preference
+            PrefsProc.flushPref();                                                  // Make changes permanent
             pathSet = true;
         } 
     }//GEN-LAST:event_mntmNewDbActionPerformed
 
     private void mntmSwitchDbActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmSwitchDbActionPerformed
     {//GEN-HEADEREND:event_mntmSwitchDbActionPerformed
-        Preferrences.fc.setFileSelectionMode(JFileChooser.FILES_ONLY);	// Only look at files
-        int returnVal = Preferrences.fc.showOpenDialog(null);           // Switch DB dialog
-        if (returnVal == JFileChooser.APPROVE_OPTION)                   // Get good DB?
+        Preferrences.fc.setFileSelectionMode(JFileChooser.FILES_ONLY);              // Only look at files
+        int returnVal = Preferrences.fc.showOpenDialog(null);                       // Switch DB dialog
+        if (returnVal == JFileChooser.APPROVE_OPTION)                               // Get good DB?
         {
 
-            String path = Preferrences.fc.getSelectedFile().getAbsolutePath();  // Get path
+            String path = Preferrences.fc.getSelectedFile().getAbsolutePath();      // Get path
 
-            if (pathSet)						// path to DB set?
+            if (pathSet)                                                            // path to DB set?
             {
-                SQLiteConnection.closeHandicapDB(SQLiteConnection.connection); 	// Yes, DB open so, close it
+                SQLiteConnection.closeHandicapDB(SQLiteConnection.connection);      // Yes, DB open so, close it
             } 
-            else                                                        // No
+            else                                                                    // No
             {
-                HandicapMainMenu.btnAddScores.setVisible(true);         // Display Add Scores button 
-                HandicapMainMenu.btnDisplayScores.setVisible(true);     // Display Display Scores button
-                HandicapMainMenu.btnEditCourses.setVisible(true);       // Display Edit Courses button
-                pathSet = true;						// Handicap DB has been initialized
+                HandicapMainMenu.btnAddScores.setVisible(true);                     // Display Add Scores button 
+                HandicapMainMenu.btnDisplayScores.setVisible(true);                 // Display Display Scores button
+                HandicapMainMenu.btnEditCourses.setVisible(true);                   // Display Edit Courses button
+                pathSet = true;                                                     // Handicap DB has been initialized
             }
-            handicapPrefs.remove(HANDICAPDB);	 				// Remove path from prefs
-            SQLiteConnection.connection = SQLiteConnection.dbConnector(path);	// Open the new DB
-            userName = JOptionPane.showInputDialog("Enter your first name for tables:");    // Get userName
-            handicapPrefs.put(HANDICAPUSERNAME, userName);			// Save username
-            scoreTableName = userName + "_SCORE_TBL";                           // scoreTable Name "userName_SCORE_TBL"
-            handicapPrefs.put(HANDICAPSCORETABLENAME, scoreTableName);		// Save the new in preference
-            setTitle("Handicap - " + userName);                                 // Set screen title
-            try
-            {
-                handicapPrefs.flush();                                          // Make all preferences changes permanent
-            }
-            catch (BackingStoreException ex)
-            {
-                Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            DisplayScores.scoreDataChanged = true;				// Force re-display
-            MaintainCourses.refreshCourseTable(SQLiteConnection.connection, courseTableName);	// Fill initial course table
-            handicapPrefs.put(HANDICAPDB, path);			// Save the new in preference
-            try
-            {
-                handicapPrefs.flush();                          // Make all preferences changes permanent
-            }
-            catch (BackingStoreException ex)
-            {
-                Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            PrefsProc.removePref(HANDICAPDB);                                       // Remove path from prefs
+            SQLiteConnection.connection = SQLiteConnection.dbConnector(path);       // Open the new DB
+            userName = JOptionPane.showInputDialog(
+                    "Enter your first name for tables:");                           // Get userName
+            PrefsProc.putPref(HANDICAPUSERNAME, userName);                          // Save username
+            scoreTableName = userName + "_SCORE_TBL";                               // scoreTable Name "userName_SCORE_TBL"
+            PrefsProc.putPref(HANDICAPSCORETABLENAME, scoreTableName);              // Save the new in preference
+            setTitle("Handicap - " + userName);                                     // Set screen title
+//            PrefsProc.flushPref();                                                  // Make all preferences changes permanent
+            DisplayScores.scoreDataChanged = true;                                  // Force re-display
+            MaintainCourses.refreshCourseTable(SQLiteConnection.connection, 
+                    courseTableName);                                               // Fill initial course table
+            PrefsProc.putPref(HANDICAPDB, path);                                    // Save the new in preference
+            PrefsProc.flushPref();                                                  // Make all preferences changes permanent
+            Preferrences.prefsLoadPlayerCombo();                                    // Load preferences player combo
             pathSet = true;
         }
         else
@@ -780,13 +764,13 @@ public class HandicapMain extends JFrame
 
     private void mntmRemoveNineHoleActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmRemoveNineHoleActionPerformed
     {//GEN-HEADEREND:event_mntmRemoveNineHoleActionPerformed
-        handicapPrefs.remove(HANDICAPNINEHOLE);  		// <debug>
+        PrefsProc.removePref(HANDICAPNINEHOLE);                                     // Remove hanging nine hole <debug>
     }//GEN-LAST:event_mntmRemoveNineHoleActionPerformed
 
     private void mntmRemoveDbPathActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmRemoveDbPathActionPerformed
     {//GEN-HEADEREND:event_mntmRemoveDbPathActionPerformed
 //	setPathSet(false);					// set to no path
-        handicapPrefs.remove(HANDICAPDB);			// Remove path from prefs
+        PrefsProc.removePref(HANDICAPDB);                                           // Remove path from prefs
     }//GEN-LAST:event_mntmRemoveDbPathActionPerformed
 
     private void mntmRemoveNodeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmRemoveNodeActionPerformed
@@ -798,17 +782,14 @@ public class HandicapMain extends JFrame
 * 	ie "org.handicap.Handicap"
 * 
 */
-        int answer = JOptionPane.showConfirmDialog(null, "This will remove all preferrences.  Confirm:",
-                "Delete Preferrences", JOptionPane.YES_NO_OPTION);
-        if (answer == JOptionPane.YES_OPTION)                       // Really want to remove all prefs?
+        int answer = JOptionPane.showConfirmDialog(null, 
+                "This will remove all preferences.  Confirm:",
+                "Delete Preferences", JOptionPane.YES_NO_OPTION);
+        if (answer == JOptionPane.YES_OPTION)                                       // Really want to remove all prefs?
         {
-            try
-            {
-                handicapPrefs.removeNode();                         // Yes
-            } catch (BackingStoreException e1)
-            {
-                e1.printStackTrace();
-            }
+            PrefsProc.removeNodePref();                                             // Remove node
+            PrefsProc.flushPref();                                                  // Make changes permanent
+            PrefsProc.prefsNode(className);                                         // Restablish node
         }
     }//GEN-LAST:event_mntmRemoveNodeActionPerformed
 
@@ -874,12 +855,19 @@ public class HandicapMain extends JFrame
         }
         else
         {
-            int nineCount = 0, tCount = 0, deleteCount = 0;             // Nine hole, tournament, and deleted counters
-            int answer = JOptionPane.showConfirmDialog(null, lastRow + " - total rows for year could be deleted",
-                "Delete year", JOptionPane.OK_CANCEL_OPTION);           // Number to delete
-            if (answer == JOptionPane.CANCEL_OPTION)                    // CANCEL?
-                return;                                                 // Yes, get out
-            for (int row = 0; row < lastRow; row++)			// Loop thru all scores
+            DisplayScores.tableDisplayScores.setVisible(false);                     // Stop displaying score table
+            int nineCount = 0, tCount = 0, deleteCount = 0;                         // Nine hole, tournament, and deleted counters
+            int answer = JOptionPane.showConfirmDialog(null, lastRow + 
+                    " - total rows for year " + deleteYear
+                            + " will be deleted",
+                "Delete year", JOptionPane.OK_CANCEL_OPTION);                       // Number to delete
+            if (answer == JOptionPane.CANCEL_OPTION)                                // CANCEL?
+            {
+                redisplayScores();                                                  // Yes, redisplay & enable scores table
+                HandicapMain.returnStack.pop();                                     // Pop return 
+                return;                                                             // Get out
+            }
+            for (int row = 0; row < lastRow; row++)                                 // Loop thru all scores
             {
                 String t = (String) DisplayScores.tableDisplayScores.getModel().
                         getValueAt(row, HandicapMain.T_POS);            // tourn / nine hole
@@ -905,28 +893,24 @@ public class HandicapMain extends JFrame
             JOptionPane.showMessageDialog(null, nineCount + " - nine record(s) kept\n" +
                     tCount + " - tournament record(s) kept\n" +
                     deleteCount + " - record(s) deleted",
-                    "Delete year", JOptionPane.INFORMATION_MESSAGE);    // totals message
-            if (!HandicapMain.returnStack.peek().equals(MAINMENU))      // Returning to MAINMENU?
-            {
-                DisplayScores.refreshScoreTable(scoreTableName);        // No, refresh scores
-                HandicapMain.returnStack.pop();                         // Pop return                
-            }
+                    "Delete year", JOptionPane.INFORMATION_MESSAGE);                // totals message
+            redisplayScores();                                                      // Redisplay & enable scores table
+            HandicapMain.returnStack.pop();                                         // Pop return                
         }
 
     }//GEN-LAST:event_mntmDeleteYearScoresActionPerformed
 
+    private void redisplayScores()
+    {
+        DisplayScores.refreshScoreTable(scoreTableName);                            // Refresh scores
+        DisplayScores.tableDisplayScores.setVisible(true);                          // Enable displaying score table
+    }
+    
     private void mntmRemoveLFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmRemoveLFActionPerformed
     {//GEN-HEADEREND:event_mntmRemoveLFActionPerformed
-        handicapPrefs.remove(HANDICAPLOOKANDFEEL);                      // Remove L&F
-        handicapPrefs.remove(HANDICAPTHEME);                            // Remove theme
-            try
-            {
-                handicapPrefs.flush();
-            }
-            catch (BackingStoreException ex)
-            {
-                Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        PrefsProc.removePref(HANDICAPLOOKANDFEEL);                                  // Remove L&F
+        PrefsProc.removePref(HANDICAPTHEME);                                        // Remove theme
+        PrefsProc.flushPref();                                                      // Make changes permanent
     }//GEN-LAST:event_mntmRemoveLFActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenuItem1ActionPerformed
@@ -936,21 +920,14 @@ public class HandicapMain extends JFrame
 
     private void mntmAddPlayerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmAddPlayerActionPerformed
     {//GEN-HEADEREND:event_mntmAddPlayerActionPerformed
-        userName = JOptionPane.showInputDialog("Your first name");  // Get user name
-        setTitle("Handicap - " + userName);                         // Set screen title "Handicap - userName"
-        handicapPrefs.put(HANDICAPUSERNAME, userName);              // Save user name in preferences
-        AddScores.createScoreTable(userName);                       // Create SCORE table
-        Preferrences.addPlayerToCombo(userName);                    // Add to player combobox
+        userName = JOptionPane.showInputDialog("Your first name");                  // Get user name
+        setTitle("Handicap - " + userName);                                         // Set screen title "Handicap - userName"
+        PrefsProc.putPref(HANDICAPUSERNAME, userName);                              // Save user name in preferences
+        AddScores.createScoreTable(userName);                                       // Create SCORE table
+        Preferrences.addPlayerToCombo(userName);                                    // Add to player combobox
         // New DB
-        DisplayScores.scoreDataChanged = true;			// Must force redisplay scores
-        try
-        {
-            handicapPrefs.flush();                                  // Make changes permanent
-        }
-        catch (BackingStoreException ex)
-        {
-            Logger.getLogger(HandicapMain.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        DisplayScores.scoreDataChanged = true;                                      // Must force redisplay scores
+        PrefsProc.flushPref();                                                      // Make changes permanent
         pathSet = true;
     }//GEN-LAST:event_mntmAddPlayerActionPerformed
    
@@ -1087,147 +1064,59 @@ public class HandicapMain extends JFrame
             System.out.println(returnStack.toString());
         }
     
-    
-    /**
-     *      This method is for debug purposes
-     *      It just prints out a bunch of variable fields
-     */
-    
-//    public static void debugVariables(String where)
-//    {
-//        System.out.println();
-//        System.out.println("  " + where);
-//        System.out.println(HandicapMain.dbPath);
-//        System.out.println(HandicapMain.operatingSystem);
-//        System.out.println(HandicapMain.debug);
-//        System.out.println(HandicapMain.handicapPrefs);
-//        return;
-//    }
-    
 /**
  *  Initialization
  */
     void start(String args[])
     {        
-        handicapFrame = this;                           // Main frame
-        
-/*
- * 		Initialization
- */
-		
-/*
- * 
-// * Preferences 
-// * MAC OS X
-// * 		~/library/Preferences/com.apple.java.util.prefs.plist
-// * Windows
-// * 		Registry - HKEY_CURRENT_USER\SOFTWARE\JavaSoft\Prefs
-// * 			It produces a warning
-// * 
-// * 
-// */
-//        if (TEST)                                                   // Is this TEST?
-//        {
-//            JOptionPane.showMessageDialog(null, "Running with TEST preferences");   // Yes - tell
-//            className = className + ".test";                        // Override package name
-//        }
-//        handicapPrefs = Preferences.userRoot().node(className);     // "org.handicap.HandicapMain"
-        dbPath = handicapPrefs.get(HANDICAPDB, NODB);               // Path in preferences
-        debug = handicapPrefs.getBoolean(HANDICAPDEBUG, NODG);      // Debug in preferences
+        handicapFrame = this;                                                       // Main frame
 
-        operatingSystem = System.getProperty("os.name");            // Get OS
+        dbPath = PrefsProc.getPref(HANDICAPDB, NODB);                               // Path in preferences
+        debug = PrefsProc.getBooleanPref(HANDICAPDEBUG, NODG);                      // Debug in preferences
+
+        operatingSystem = System.getProperty("os.name");                            // Get OS
         if (debug)
         {
-            System.out.println(operatingSystem);                    // <debug>
+            System.out.println(operatingSystem);                                    // <debug>
 
             System.out.println("Java version: " +
-                    System.getProperty("java.runtime.version"));    // <debug>
+                    System.getProperty("java.runtime.version"));                    // <debug>
         }
 
-        scoreTableName = handicapPrefs.get(HANDICAPSCORETABLENAME, NOST);   // SCORE table
-        userName = handicapPrefs.get(HANDICAPUSERNAME, NOUN);               // User name
+        scoreTableName = PrefsProc.getPref(HANDICAPSCORETABLENAME, NOST);           // SCORE table
+        userName = PrefsProc.getPref(HANDICAPUSERNAME, NOUN);                       // User name
 
-        pathSet = true;                                             // Assume handicap DB has been initialized
-        if (dbPath.equals(NODB))                                    // Have we setup DB?
-            pathSet = false;                                        // Handicap DB has not been initialized
-
-//        lookAndFeel = handicapPrefs.get(HANDICAPLOOKANDFEEL, NOLF); // Get look and feel from preferences
-//        String theme = handicapPrefs.get(HANDICAPTHEME, NOTH);      // Get theme if metal
-//        if (lookAndFeel.equals(NOLF))                               // L & F setup?
-//        {
-//            initLookAndFeel(LOOKANDFEEL, THEME);                    // No, pass default System, Ocean
-//        } 
-//        else                                                        // Yes
-//        {
-//            initLookAndFeel(lookAndFeel, theme);                    // Use what we got for L & F
-//        }
+        pathSet = true;                                                             // Assume handicap DB has been initialized
+        if (dbPath.equals(NODB))                                                    // Have we setup DB?
+            pathSet = false;                                                        // Handicap DB has not been initialized
+        /*
+        Setup the display panels. The order is important because some of the 
+        constructors use fields in earlier classes
+        */
+        HandicapMainMenu mm = new HandicapMainMenu(dbPath);                         // Handicap main menu class (path to DB)
+        AddScores as = new AddScores();                                             // Add scores class
+        MaintainCourses mc = new MaintainCourses(pathSet);                          // Maintain courses class
+        DisplayScores ds = new DisplayScores();                                     // Display scores class
+        Preferrences pr = new Preferrences(pathSet);                                // Preferences class
         
-    /*
-        Setup card layout as layout manager
-    */
+        /*
+            Setup card layout as layout manager
+        */
         
-        setLayout(cards);                               // Set card layout
-        HandicapMainMenu mm = new HandicapMainMenu();   // Handicap main menu class
-        add(mm, MAINMENU);                              // Add main menu to card layout
-        MaintainCourses mc = new MaintainCourses();     // Maintain courses class
-        add(mc, MAINTAINCOURSES);                       // Add maintain courses to card layout
-        DisplayScores ds = new DisplayScores();         // Display scores class
-        add(ds, DISPLAYSCORES);                         // Add display scores to card layout
-        AddScores as = new AddScores();                 // Add scores class
-        add(as, ADDSCORES);                             // Add scores to card layout
-/* 
-        Invoke pr after DB opened
-        Preferrences pr = new Preferrences();           // Preferences class
-        add(pr, PREFERRENCES);                          // Add preferences to card layout
-*/
-        this.setLocationRelativeTo(null);               // Center JFrame on screen
-
-/*
- * 
- * 	Check to see if Handicap DB has been initialized.
- * 	If not, don't allow anything until it has.
- * 
- */
-
-
-        if (!pathSet)				// path to DB set?
+        setLayout(cards);                                                           // Set card layout
+        add(mm, MAINMENU);                                                          // Add main menu to card layout
+        add(mc, MAINTAINCOURSES);                                                   // Add maintain courses to card layout
+        add(ds, DISPLAYSCORES);                                                     // Add display scores to card layout
+        add(as, ADDSCORES);                                                         // Add scores to card layout
+        add(pr, PREFERRENCES);                                                      // Add preferences to card layout
+        this.setLocationRelativeTo(null);                                           // Center JFrame on screen
+        
+        if (!debug)                                                                 // Debug on?
         {
-                /*
-                 * 
-                 * Handicap DB has not been setup, do not allow 
-                 * anything until it is
-                 * 
-                 */
-            HandicapMainMenu.btnAddScores.setVisible(false);        // Do not display Add Scores button
-            HandicapMainMenu.btnDisplayScores.setVisible(false);    // Do not display Display Scores button
-            HandicapMainMenu.btnEditCourses.setVisible(false);      // Do not display Edit Courses button
-
-                JOptionPane.showMessageDialog(null, "DB has not been initialized,\n"
-                                + "go to File menu and select New DB to create a new DB,\n"
-                                + "or Switch DB to switch to an existing DB.");
+            mnDebug.setVisible(false);                                              // No, set debug menu invisible
         }
-        else                                    // Yes path to DB set
-        {
-            //  Set all buttons to visible
-            HandicapMainMenu.btnAddScores.setVisible(true);         // Display Add Scores button
-            HandicapMainMenu.btnDisplayScores.setVisible(true);     // Display Display Scores button
-            HandicapMainMenu.btnEditCourses.setVisible(true);       // Display Edit Courses button
-            pathSet = true;                                         // Handicap DB has been initialized
-            SQLiteConnection.connection = SQLiteConnection.dbConnector(dbPath);	// Open handicap DB
-            MaintainCourses.refreshCourseTable(SQLiteConnection.connection, courseTableName);	// Fill initial course table                          
-            setFrameTitle("Handicap Main Menu - " + userName);
-        }
-				
-        if (!debug)                                 // Debug on?
-        {
-            mnDebug.setVisible(false);              // No, set debug menu invisible
-        }
-        
-        handicapFrame.setVisible(true);             // HandicapMain visible
-//        returnStack.push(MAINMENU);                 // MAINMENU in returnStack
-        
-        Preferrences pr = new Preferrences();           // Preferences class after DB opened
-        add(pr, PREFERRENCES);                          // Add preferences to card layout
+        setFrameTitle("Handicap Main Menu - " + HandicapMain.userName);
+        handicapFrame.setVisible(true);                                             // HandicapMain visible
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuBar jMenuBar1;
