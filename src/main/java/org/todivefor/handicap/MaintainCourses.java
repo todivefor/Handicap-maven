@@ -14,7 +14,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import net.proteanit.sql.DbUtils;
-import static org.todivefor.handicap.HandicapMain.courseTableName;
 import org.todivefor.iconutils.IconUtils;
 import org.todivefor.stringutils.StringUtils;
 

@@ -76,12 +76,17 @@ import org.todivefor.stringutils.StringUtils;
  *      Reorganized initialization code to HandicapMainMenu, MaintainCourses, and Preferrrnces constructors
  *      Move fillCourseComboBox() to AddScores
  *      Fixed & improved delete score year - refreshScoreTable
+ * 
+ * 0.1.8
+ *      Better implement sort of handicap indices and rows (diffRows) array
+ *      in DisplayScores() using Arrays.sort().       
+ *      Added DiffRow class
  */
 public class HandicapMain extends JFrame 
 {
-        public static final String VERSION = "0.1.7";               // Application version used in "About"
-        public static final String REVISIONDATE = "07/20/2020";     // Revision date
-        public static final boolean TEST = false;                    // use test preferences
+        public static final String VERSION = "0.1.8";                               // Application version used in "About"
+        public static final String REVISIONDATE = "07/23/2020";                     // Revision date
+        public static final boolean TEST = false;                                   // use test preferences
 /*
  * 	Components referenced from other classes
  */

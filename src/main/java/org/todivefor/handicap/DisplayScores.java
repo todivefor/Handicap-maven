@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
@@ -24,6 +25,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import net.proteanit.sql.DbUtils;
+import org.todivefor.handicap.process.DiffRow;
 import org.todivefor.handicap.process.PrefsProc;
 import org.todivefor.iconutils.IconUtils;
 import org.todivefor.stringutils.StringUtils;
@@ -203,7 +205,9 @@ public class DisplayScores extends javax.swing.JPanel
         archiveYr = 0;                                      // Turn off in case displaying archive
         tournament = false;                                 // Set not tournament score display
         scoreEditingAllowed = true;                         // Allow editing of scores
+        /*
         refreshScoreTable(HandicapMain.scoreTableName);     // Refresh scores table
+        */
         HandicapMain.resetTitle();                          // Set title in frame
         HandicapMain.lastCard = HandicapMain.MAINMENU;      // Force MAINMENU
         AddScores.txtAddScoresPCC.setVisible(false);        // Make PCC invisible
@@ -428,6 +432,18 @@ public class DisplayScores extends javax.swing.JPanel
         }
         return date;
     }
+ 
+    /**
+     * This is the HIInfo class. It contains information about handicap
+     * index being calculated
+     */
+    public static class HIInfo
+    {
+        Double newIndex;                                                            // Calculated HI
+        Double newIndexAdjusted;                                                    // Adjusted index
+        String adjustedType;                                                        // Type of adjustment                                                 
+    }
+    
 /**
  * This method displays the score table
  * @param scoreTableName
@@ -566,7 +582,7 @@ public class DisplayScores extends javax.swing.JPanel
         String hi = "NH";                                                           // Assume not enough scores
         DisplayScores.textDisplayScoresIndex.setText(hi);                           // Put in display								
 
-        HandicapIndices handicapIndex = calculateHandicapIndex(DisplayScores.
+        HIInfo handicapIndex = calculateHandicapIndex(DisplayScores.
                 tableDisplayScores);                                                // Calculate handicap index and mark used scores
 
         if (handicapIndex.newIndex != -99)                                          // Calculate index?
@@ -673,13 +689,6 @@ public class DisplayScores extends javax.swing.JPanel
         }
 
     }
-
-        public static class HandicapIndices
-        {
-            Double newIndex;                                                        // Calculated HI
-            Double newIndexAdjusted;                                                // Adjusted index
-            String adjustedType;                                                    // Type of adjustment                                                 
-        }
     
 /**
  * 	Method will calculate handicap index from differentials in JTABLE tableDisplayScores
@@ -689,14 +698,9 @@ public class DisplayScores extends javax.swing.JPanel
  * @param tableDisplayScores
  * @return 
  */
-    public static HandicapIndices calculateHandicapIndex(JTable tableDisplayScores) 
+    public static HIInfo calculateHandicapIndex(JTable tableDisplayScores) 
     {
-        class Indices
-        {
-            public double differential;
-            public int tableRowNumber;
-        }
-        HandicapIndices hiIndex = new HandicapIndices();
+        HIInfo hiIndex = new HIInfo();
         hiIndex.adjustedType = "";                                                  // Init adjustment type (no adj)
         if (Preferrences.chkBoxPreferencesWHC.
                 isSelected())                           // Non-WHC?
@@ -725,10 +729,10 @@ public class DisplayScores extends javax.swing.JPanel
             scoresInCurrentRecord = lastRow;		// Get scores we have
         }
 
-        Indices[] indexArray = new Indices [scoresInCurrentRecord];	// Array of indices # up to 20
+        DiffRow[] diffRows = new DiffRow [scoresInCurrentRecord];                   // Array of indices # up to 20
 /*
  * 
- * 			Build array of Indices object
+ * 			Build array of DiffRow object
  * 				double differential
  * 				int table row number
  */
@@ -748,7 +752,9 @@ public class DisplayScores extends javax.swing.JPanel
 
                 if ((t == null) || (!(t.equals(HandicapMain.NINEINDICATOR))))                   // Nine hole score?
                 {
-                    indexArray[numberNonNineHoleScoresInCurrentRecord] = new Indices();		// No - process
+                    /*
+                    indexArray[numberNonNineHoleScoresInCurrentRecord] = new DiffRow();		// No - process
+                    */
 //                    if (worldHandicap)
 //                      Check for exceptional score marker (!) following differential
                         String differTest = tableDisplayScores.getModel().
@@ -759,8 +765,11 @@ public class DisplayScores extends javax.swing.JPanel
                             exceptionalScore = true;                                // This is an exceptional score
                         }
                         Double differTestDbl = Double.parseDouble(differTest);
-                        indexArray[numberNonNineHoleScoresInCurrentRecord].
+                        /*
+                        diffRows[numberNonNineHoleScoresInCurrentRecord].
                             differential = saveDifferential = differTestDbl;
+                        */
+                        saveDifferential = differTestDbl;
                         
 //                        indexArray[numberNonNineHoleScoresInCurrentRecord].
 //                            differential = saveDifferential = 
@@ -772,8 +781,12 @@ public class DisplayScores extends javax.swing.JPanel
 //                            differential = saveDifferential = 
 //                            (double) tableDisplayScores.getModel().
 //                            getValueAt(row, HandicapMain.DIFFERENTIAL_POS - 1);   // differential (missing PCC)
+                    /*
                     indexArray[numberNonNineHoleScoresInCurrentRecord].
                             tableRowNumber = row;                               // row #
+                    */
+                    diffRows[numberNonNineHoleScoresInCurrentRecord] = new 
+                            DiffRow(saveDifferential, row);                         // Add differntial Row to array
                     numberNonNineHoleScoresInCurrentRecord++;                   // Count non 9 hole scores in record
 //					System.out.println("Row: " + indexArray[row].tableRowNumber + " Index: " + indexArray[row].differential);
                 }
@@ -975,30 +988,12 @@ public class DisplayScores extends javax.swing.JPanel
 * 		Sort last 20 or less differentials
 * 
 */
-            int temptableRowNumber;
-            double tempDifferential;
-            boolean finish = false;
-            while (!finish)
-            {
-                for (int s = 1; s < numberNonNineHoleScoresInCurrentRecord; s++)
-                {
-                    finish = true;
-                    for (int n = 0; n < (numberNonNineHoleScoresInCurrentRecord) - s; n++)
-                    {
-                        if (indexArray[n].differential > indexArray[n + 1].differential)
-                        {
-                            tempDifferential = indexArray[n + 1].differential;
-                            temptableRowNumber = indexArray[n + 1].tableRowNumber;
-                            indexArray[n + 1].differential = indexArray[n].differential;
-                            indexArray[n + 1].tableRowNumber = indexArray[n].tableRowNumber;
-                            indexArray[n].differential = tempDifferential;
-                            indexArray[n].tableRowNumber = temptableRowNumber;
-                            finish = false;				
-                        }
-                    }
-                }
-
-            }
+//            DiffRow.sort(diffRows);                                                 // My bubble sort
+            Arrays.sort(diffRows);                                                  // Sort scoring record
+//            for (DiffRow dr: diffRows)
+//            {
+//                System.out.println(dr);
+//            }
 /*
 * 		Set score used
 */
@@ -1006,8 +1001,8 @@ public class DisplayScores extends javax.swing.JPanel
 
             for (int row = 0; row < nScores; row++)
             {
-                tableDisplayScores.setValueAt("*", indexArray[row].tableRowNumber, uPosition);	// Set used
-                totalDifferential = totalDifferential + indexArray[row].differential;
+                tableDisplayScores.setValueAt("*", diffRows[row].tableRowNumber, uPosition);	// Set used
+                totalDifferential = totalDifferential + diffRows[row].differential;
 
 //					System.out.println("Row: " + indexArray[row].tableRowNumber + " Index: " + indexArray[row].differential);
             }
@@ -1149,7 +1144,7 @@ public class DisplayScores extends javax.swing.JPanel
  * Soft cap - invoked when (LHI + 3) LT (HI) LT= LHI + 5, increase limited to 50% of increase above
  * Hard cap - LHI + 5
  */
-    private static double calcSoftCap(double handicapIndex, double lowIndex, HandicapIndices hiIndex)
+    private static double calcSoftCap(double handicapIndex, double lowIndex, HIInfo hiIndex)
     {
         double cappedHandicapIndex = handicapIndex;                                 // Assume no cap
         double softCap = lowIndex + 3D;                                             // Soft cap
@@ -1177,7 +1172,7 @@ public class DisplayScores extends javax.swing.JPanel
      * @param lowIndex - low index from prefs
      * @return 
      */
-    private static double calcHardCap(double handicapIndex, double lowIndex, HandicapIndices hiIndex)
+    private static double calcHardCap(double handicapIndex, double lowIndex, HIInfo hiIndex)
     {
         double hardCap = lowIndex + 5D;                                             // Hard cap
         double cappedHandicapIndex = handicapIndex;                                 // Default capped to existing
@@ -1223,7 +1218,7 @@ public class DisplayScores extends javax.swing.JPanel
         return withinYr;
     }
 
-    private static double calcTournamentAdjustment(double handicapIndex, int numberTournamentScores, HandicapIndices hiIndex)
+    private static double calcTournamentAdjustment(double handicapIndex, int numberTournamentScores, HIInfo hiIndex)
     {
 
         //  Tournament adjustment table
