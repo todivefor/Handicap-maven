@@ -21,6 +21,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 import net.proteanit.sql.DbUtils;
 import org.todivefor.handicap.process.PrefsProc;
+import org.todivefor.iconutils.IconUtils;
 import org.todivefor.stringutils.StringUtils;
 //import org.todivefor.rxcardlayout.RXCardLayout;                     // <RXCardlayout>
 
@@ -81,11 +82,15 @@ import org.todivefor.stringutils.StringUtils;
  *      Better implement sort of handicap indices and rows (diffRows) array
  *      in DisplayScores() using Arrays.sort().       
  *      Added DiffRow class
+ * 
+ * 0.1.9
+ *      Cleaned up the CardLayout. JFrame has menubar, dataPanel (card) and
+ *          Exit / Back button
  */
 public class HandicapMain extends JFrame 
 {
-        public static final String VERSION = "0.1.8";                               // Application version used in "About"
-        public static final String REVISIONDATE = "07/23/2020";                     // Revision date
+        public static final String VERSION = "0.1.9";                               // Application version used in "About"
+        public static final String REVISIONDATE = "08/21/2020";                     // Revision date
         public static final boolean TEST = false;                                   // use test preferences
 /*
  * 	Components referenced from other classes
@@ -238,6 +243,9 @@ public class HandicapMain extends JFrame
     private void initComponents()
     {
 
+        dataPanel = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        btnHandicapMainExit = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         mnHandicap = new javax.swing.JMenu();
         mntmAbout = new javax.swing.JMenuItem();
@@ -266,7 +274,21 @@ public class HandicapMain extends JFrame
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBounds(new java.awt.Rectangle(200, 0, 750, 700));
-        getContentPane().setLayout(new java.awt.CardLayout());
+
+        dataPanel.setLayout(new java.awt.CardLayout());
+        getContentPane().add(dataPanel, java.awt.BorderLayout.CENTER);
+
+        btnHandicapMainExit.setText("Exit");
+        btnHandicapMainExit.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                btnHandicapMainExitActionPerformed(evt);
+            }
+        });
+        jPanel2.add(btnHandicapMainExit);
+
+        getContentPane().add(jPanel2, java.awt.BorderLayout.PAGE_END);
 
         mnHandicap.setText("Handicap");
 
@@ -496,7 +518,8 @@ public class HandicapMain extends JFrame
             returnStack.push(lastCard);                                             // Where we came from
         }
         setFrameTitle("Handicap Preferences - " + userName);                        // Set frame title
-        cards.show(getContentPane(), PREFERRENCES);                                 // Show preferences card
+        btnHandicapMainExit.setText("Back");                                        // Exit to back button
+        cards.show(dataPanel, PREFERRENCES);                                        // To Preferences
     }//GEN-LAST:event_mntmPreferrencesActionPerformed
 
     private void mntmAboutActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmAboutActionPerformed
@@ -606,9 +629,9 @@ public class HandicapMain extends JFrame
 
     private void mntmAddScoreActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmAddScoreActionPerformed
     {//GEN-HEADEREND:event_mntmAddScoreActionPerformed
-        if (returnStack.empty())                                            // Any return address?
+        if (returnStack.empty())                                                    // Any return address?
         {
-            returnStack.push(MAINMENU);                                     // No, return MAINMENU
+            returnStack.push(MAINMENU);                                             // No, return MAINMENU
         }
 //        else                                                                // Yes
 //        {
@@ -617,82 +640,91 @@ public class HandicapMain extends JFrame
 //                returnStack.push(lastCard);                                 // No, Save where we came from
 //            }
 //        }
-        lastCard = ADDSCORES;                                               // Where we are
-        HandicapMainMenu.addScore();                                        // Perform addScore
-        setFrameTitle("Handicap Add Scores - " + userName);                 // Title
-        HandicapMain.cards.show(getContentPane(), HandicapMain.ADDSCORES);  // Show ADDSCORES
+        lastCard = ADDSCORES;                                                       // Where we are
+        HandicapMainMenu.addScore();                                                // Perform addScore
+        setFrameTitle("Handicap Add Scores - " + userName);                         // Title
+        btnHandicapMainExit.setText("Back");                                        // Exit to back button
+        HandicapMain.cards.show(dataPanel, HandicapMain.ADDSCORES);                 // Show ADDSCORES
     }//GEN-LAST:event_mntmAddScoreActionPerformed
 
     private void mntmEditCourseActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmEditCourseActionPerformed
     {//GEN-HEADEREND:event_mntmEditCourseActionPerformed
-        if (returnStack.empty())                          // Any return address?
+        if (returnStack.empty())                                                    // Any return address?
         {
-            returnStack.push(MAINMENU);                   // No, return MAINMENU
+            returnStack.push(MAINMENU);                                             // No, return MAINMENU
         }
-        lastCard = MAINTAINCOURSES;                                     // Where we are     
+        lastCard = MAINTAINCOURSES;                                                 // Where we are     
         
-        setFrameTitle("Handicap Maintain Courses - " + userName);         // Title
-        HandicapMain.cards.show(getContentPane(), MAINTAINCOURSES);
+        setFrameTitle("Handicap Maintain Courses - " + userName);                   // Title
+        btnHandicapMainExit.setText("Back");                                        // Exit to back button
+        HandicapMain.cards.show(dataPanel, MAINTAINCOURSES);
     }//GEN-LAST:event_mntmEditCourseActionPerformed
 
     private void mntmDisplayScoresActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmDisplayScoresActionPerformed
     {//GEN-HEADEREND:event_mntmDisplayScoresActionPerformed
-        if (!lastCard.equals(DISPLAYSCORES))                            // Come from DISPLAYSCORES?
+        if (!lastCard.equals(DISPLAYSCORES))                                        // Come from DISPLAYSCORES?
         {
-            returnStack.push(lastCard);                                 // No, Save where we came from
+            returnStack.push(lastCard);                                             // No, Save where we came from
         }
 //        }
-        lastCard = DISPLAYSCORES;                                       // Where we are
+        lastCard = DISPLAYSCORES;                                                   // Where we are
         
-        DisplayScores.scoreEditingAllowed = true;                       // Allow editing of scores
-	if (DisplayScores.scoreDataChanged)                             // Has anything changed?
+        DisplayScores.scoreEditingAllowed = true;                                   // Allow editing of scores
+	if (DisplayScores.scoreDataChanged)                                         // Has anything changed?
         {
-            DisplayScores.tournament = false;                           // Yes, not displaying tournament scores
-            DisplayScores.refreshScoreTable(scoreTableName);            // Refresh scores
-            DisplayScores.scoreDataChanged = false;                     // No need to display until next change
+            DisplayScores.tournament = false;                                       // Yes, not displaying tournament scores
+            DisplayScores.refreshScoreTable(scoreTableName);                        // Refresh scores
+            DisplayScores.scoreDataChanged = false;                                 // No need to display until next change
         }
-        setFrameTitle("Handicap Display Scores - " + userName);         // Title
-        HandicapMain.cards.show(getContentPane(), DISPLAYSCORES);       // Just display with no changes
+        setFrameTitle("Handicap Display Scores - " + userName);                     // Title
+        btnHandicapMainExit.setText("Back");                                        // Exit to back button
+        HandicapMain.cards.show(dataPanel, DISPLAYSCORES);                          // Just display with no changes
     }//GEN-LAST:event_mntmDisplayScoresActionPerformed
 
     private void mntmDisplayArchiveScoresActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmDisplayArchiveScoresActionPerformed
     {//GEN-HEADEREND:event_mntmDisplayArchiveScoresActionPerformed
-        if (!lastCard.equals(DISPLAYSCORES))                            // Come from DISPLAYSCORES?
+        if (!lastCard.equals(DISPLAYSCORES))                                        // Come from DISPLAYSCORES?
         {
-            returnStack.push(lastCard);                                 // No, Save where we came from
+            returnStack.push(lastCard);                                             // No, Save where we came from
         }
 //        }
-        lastCard = DISPLAYSCORES;                                       // Where we are
+        lastCard = DISPLAYSCORES;                                                   // Where we are
         
-        String archiveYear = JOptionPane.showInputDialog(null, "Enter year of Archive (YYYY) to display", "Archive Year", JOptionPane.DEFAULT_OPTION);
-        if (archiveYear == null)                            // Did we get a year
+        String archiveYear = JOptionPane.showInputDialog(null, "Enter year of "
+                + "Archive (YYYY) to display", "Archive Year", 
+                JOptionPane.DEFAULT_OPTION);
+        if (archiveYear == null)                                                    // Did we get a year
         {
-            return;                                         // No, get out
+            return;                                                                 // No, get out
         }
-        if (!StringUtils.isInteger(archiveYear))            // Valid year?
+        if (!StringUtils.isInteger(archiveYear))                                    // Valid year?
         {
-            JOptionPane.showMessageDialog(null, "Archive year is invalid.", "Archive Year", JOptionPane.ERROR_MESSAGE); // No, message
-            return;                                         // Get out
+            JOptionPane.showMessageDialog(null, "Archive year is invalid.", 
+                    "Archive Year", JOptionPane.ERROR_MESSAGE);                     // No, message
+            return;                                                                 // Get out
         }
-        DisplayScores.tournament = false;                         // Not tournament
-//        refreshScoreTable(SQLiteConnection.connection, "YrEnd" + archiveYear + scoreTableName, tournament);
-        DisplayScores.refreshScoreTable(userName + "_YrEnd" + archiveYear + "_SCORE_TBL"); // Open archive
-        DisplayScores.scoreEditingAllowed = false;          // Set not allowed to edit data
-        DisplayScores.scoreDataChanged = true;              // Redisplay actual scores when done
-        setFrameTitle("Handicap Display Archive Scores - " + userName); // Title
-        HandicapMain.cards.show(getContentPane(), DISPLAYSCORES);   // Just display with no changes
+        DisplayScores.tournament = false;                                           // Not tournament
+        DisplayScores.refreshScoreTable(userName + "_YrEnd" + archiveYear + 
+                "_SCORE_TBL");                                                      // Open archive
+        DisplayScores.scoreEditingAllowed = false;                                  // Set not allowed to edit data
+        DisplayScores.scoreDataChanged = true;                                      // Redisplay actual scores when done
+        setFrameTitle("Handicap Display Archive Scores - " + userName + 
+                " - " + archiveYear);                                               // Title
+        btnHandicapMainExit.setText("Back");                                        // Exit to back button
+        HandicapMain.cards.show(dataPanel, DISPLAYSCORES);                          // Just display with no changes
     }//GEN-LAST:event_mntmDisplayArchiveScoresActionPerformed
 
     private void mntmDisplayTournamentScoresActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmDisplayTournamentScoresActionPerformed
     {//GEN-HEADEREND:event_mntmDisplayTournamentScoresActionPerformed
-        DisplayScores.tournament = true;                        // Display tournament data
-        DisplayScores.refreshScoreTable(scoreTableName);        // Refresh score table
-        DisplayScores.scoreEditingAllowed = false;              // No editting
-        DisplayScores.scoreDataChanged = true;                  // Force rdeisplay score data
-        returnStack.push(lastCard);                             // Where we came from
+        DisplayScores.tournament = true;                                            // Display tournament data
+        DisplayScores.refreshScoreTable(scoreTableName);                            // Refresh score table
+        DisplayScores.scoreEditingAllowed = false;                                  // No editting
+        DisplayScores.scoreDataChanged = true;                                      // Force rdeisplay score data
+        returnStack.push(lastCard);                                                 // Where we came from
         setFrameTitle("Handicap Display Tournament Scores - " + 
-                userName);                                      // Title
-        cards.show(getContentPane(),DISPLAYSCORES);             // Just display with no changes
+                userName);                                                           // Title
+        btnHandicapMainExit.setText("Back");                                        // Exit to back button
+        cards.show(dataPanel, DISPLAYSCORES);                                       // Just display with no changes
     }//GEN-LAST:event_mntmDisplayTournamentScoresActionPerformed
 
     private void mntmArchiveScoresActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmArchiveScoresActionPerformed
@@ -925,7 +957,10 @@ public class HandicapMain extends JFrame
 
     private void mntmAddPlayerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_mntmAddPlayerActionPerformed
     {//GEN-HEADEREND:event_mntmAddPlayerActionPerformed
+        userName = null;
         userName = JOptionPane.showInputDialog("Your first name");                  // Get user name
+        if (userName == null)                                                       // Cancel?
+            return;                                                                 // Just get out
         setTitle("Handicap - " + userName);                                         // Set screen title "Handicap - userName"
         PrefsProc.putPref(HANDICAPUSERNAME, userName);                              // Save user name in preferences
         AddScores.createScoreTable(userName);                                       // Create SCORE table
@@ -935,6 +970,22 @@ public class HandicapMain extends JFrame
         PrefsProc.flushPref();                                                      // Make changes permanent
         pathSet = true;
     }//GEN-LAST:event_mntmAddPlayerActionPerformed
+
+    private void btnHandicapMainExitActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnHandicapMainExitActionPerformed
+    {//GEN-HEADEREND:event_btnHandicapMainExitActionPerformed
+            if (!returnStack.empty())                                               // Where we are returning, empty?                      
+            {
+                HandicapMain.resetTitle();                                          // Reset frame title
+                HandicapMain.cards.show(dataPanel, 
+                        (String) HandicapMain.returnStack.pop());                   // Return to where came from
+            }
+            else
+            {
+                if (pathSet)                                                        // Have we setup DB?
+                    SQLiteConnection.closeHandicapDB(SQLiteConnection.connection);  // Yes, close it
+                System.exit(0);                                                     // Exit Handicap
+            }
+    }//GEN-LAST:event_btnHandicapMainExitActionPerformed
    
     /*
     Beginning of common methods within HandicapMain class
@@ -1020,7 +1071,7 @@ public class HandicapMain extends JFrame
     
         public static void setFrameTitle(String title)
         {
-            handicapFrame.setTitle(title);                          // Set title in main frame
+            handicapFrame.setTitle(title);                                          // Set title in main frame
         }
         
     /**
@@ -1029,24 +1080,29 @@ public class HandicapMain extends JFrame
         
         public static void resetTitle()
         {
-            if (!returnStack.empty())                       // Where we are returning, empty?                      
+            if (!returnStack.empty())                                               // Where we are returning, empty?                      
             {
-                switch ((String) returnStack.peek())        // No, set frame title
+                switch ((String) returnStack.peek())                                // No, set frame title
                 {
                     case HandicapMain.MAINMENU:
                         setFrameTitle("Handicap Main Menu - " + userName);
+                        btnHandicapMainExit.setText("Exit");                        // Exit to button
                         break;
                     case HandicapMain.DISPLAYSCORES:
                         setFrameTitle("Handicap Display Scores - " + userName);
+                        btnHandicapMainExit.setText("Back");                        // Back to button
                         break;
                     case HandicapMain.MAINTAINCOURSES:
                         setFrameTitle("Handicap Maintain Courses - " + userName);
+                        btnHandicapMainExit.setText("Back");                        // Back to button
                         break;
                     case HandicapMain.ADDSCORES:
                         setFrameTitle("Handicap Add Scores - " + userName);
+                        btnHandicapMainExit.setText("Back");                        // Back to button
                         break;
                     default:
                         setFrameTitle("Handicap - " + userName);
+                        btnHandicapMainExit.setText("Exit");                        // Exit to button
                         break;
                 } 
             }
@@ -1107,25 +1163,30 @@ public class HandicapMain extends JFrame
         /*
             Setup card layout as layout manager
         */
-        
-        setLayout(cards);                                                           // Set card layout
-        add(mm, MAINMENU);                                                          // Add main menu to card layout
-        add(mc, MAINTAINCOURSES);                                                   // Add maintain courses to card layout
-        add(ds, DISPLAYSCORES);                                                     // Add display scores to card layout
-        add(as, ADDSCORES);                                                         // Add scores to card layout
-        add(pr, PREFERRENCES);                                                      // Add preferences to card layout
-        this.setLocationRelativeTo(null);                                           // Center JFrame on screen
+        dataPanel.setLayout(cards);                                                 // Set card layout
+        dataPanel.add(mm, MAINMENU);                                                // Add main menu to card layout
+        dataPanel.add(mc, MAINTAINCOURSES);                                         // Add maintain courses to card layout
+        dataPanel.add(ds, DISPLAYSCORES);                                           // Add display scores to card layout
+        dataPanel.add(as, ADDSCORES);                                               // Add scores to card layout
+        dataPanel.add(pr, PREFERRENCES);                                            // Add preferences to card layout
+        handicapFrame.setLocationRelativeTo(null);                                  // Center JFrame on screen
+        btnHandicapMainExit.setIcon(IconUtils.getNavigationIcon("Back", 16));
+//        btnAddHandicapMainExit.setText("Back");
         
         if (!debug)                                                                 // Debug on?
         {
             mnDebug.setVisible(false);                                              // No, set debug menu invisible
         }
         setFrameTitle("Handicap Main Menu - " + HandicapMain.userName);
+        handicapFrame.getRootPane().setDefaultButton(btnHandicapMainExit);          // Default button in frame
         handicapFrame.setVisible(true);                                             // HandicapMain visible
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    public static javax.swing.JButton btnHandicapMainExit;
+    private javax.swing.JPanel dataPanel;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JPanel jPanel2;
     public static javax.swing.JMenu mnDebug;
     private javax.swing.JMenu mnEdit;
     private javax.swing.JMenu mnFile;

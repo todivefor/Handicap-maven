@@ -975,28 +975,6 @@
         </CodeStatement>
       </LayoutCode>
     </Container>
-    <Container class="javax.swing.JPanel" name="panelSouth">
-      <Constraints>
-        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-          <BorderConstraints direction="Last"/>
-        </Constraint>
-      </Constraints>
-
-      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout"/>
-      <SubComponents>
-        <Component class="javax.swing.JButton" name="btnAddCourseExit">
-          <Properties>
-            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="IconUtils.getNavigationIcon(&quot;Back&quot;, 24)" type="code"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Back"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAddCourseExitActionPerformed"/>
-          </Events>
-        </Component>
-      </SubComponents>
-    </Container>
     <Container class="javax.swing.JScrollPane" name="scrollPaneCenter">
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="panelMaintainCourses = this;                              // This panel &#xa;//  Not needed with RXCardLayout    &lt;RXCardLayout&gt;&#xa;//      Focus textFieldCourseName for card layout&#xa;        panelMaintainCourses.addComponentListener(new ComponentAdapter()&#xa;        {&#xa;            @Override&#xa;            public void componentShown(java.awt.event.ComponentEvent e)&#xa;            {&#xa;                textFieldAddCourseName.requestFocusInWindow();&#xa;            }&#xa;        });"/>

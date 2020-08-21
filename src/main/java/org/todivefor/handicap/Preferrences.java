@@ -155,8 +155,6 @@ public class Preferrences extends javax.swing.JPanel
         jLabel2 = new javax.swing.JLabel();
         textPreferencesLHI = new javax.swing.JTextField();
         chkBoxPreferencesWHC = new javax.swing.JCheckBox();
-        panelSouth = new javax.swing.JPanel();
-        btnPreferrencesExit = new javax.swing.JButton();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -264,18 +262,6 @@ public class Preferrences extends javax.swing.JPanel
                         });
                     }
                 });
-
-                btnPreferrencesExit.setText("Back");
-                btnPreferrencesExit.addActionListener(new java.awt.event.ActionListener()
-                {
-                    public void actionPerformed(java.awt.event.ActionEvent evt)
-                    {
-                        btnPreferrencesExitActionPerformed(evt);
-                    }
-                });
-                panelSouth.add(btnPreferrencesExit);
-
-                add(panelSouth, java.awt.BorderLayout.PAGE_END);
             }// </editor-fold>//GEN-END:initComponents
 
     static void addPlayerToCombo(String userName)
@@ -283,18 +269,6 @@ public class Preferrences extends javax.swing.JPanel
         comboBoxPreferencesPlayer.addItem(userName);                // Add to combo box
     }
     
-    private void btnPreferrencesExitActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnPreferrencesExitActionPerformed
-    {//GEN-HEADEREND:event_btnPreferrencesExitActionPerformed
-//        HandicapMain.cards.show(getParent(), HandicapMain.whereToReturn); // Return to where came from
-        if (HandicapMain.returnStack.empty())                               // Is returnStack empty
-        {
-           HandicapMain.returnStack.push(HandicapMain.MAINMENU);            // Yes, force return to MAINMENU            
-        }
-        HandicapMain.resetTitle();                                          // Reset frame title
-        HandicapMain.cards.show(getParent(), 
-                (String) HandicapMain.returnStack.pop());                   // Return to where came from
-    }//GEN-LAST:event_btnPreferrencesExitActionPerformed
-
     private void btnPreferencesDebugActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnPreferencesDebugActionPerformed
     {//GEN-HEADEREND:event_btnPreferencesDebugActionPerformed
    
@@ -436,7 +410,6 @@ public class Preferrences extends javax.swing.JPanel
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnPreferencesDebug;
-    private javax.swing.JButton btnPreferrencesExit;
     public static javax.swing.JCheckBox chkBoxPreferencesWHC;
     private javax.swing.JComboBox<String> comboBoxPreferencesLookAndFeel;
     public static javax.swing.JComboBox<String> comboBoxPreferencesPlayer;
@@ -446,7 +419,6 @@ public class Preferrences extends javax.swing.JPanel
     private javax.swing.JLabel lblLookAndFeel;
     private javax.swing.JLabel lblPreferencesTheme;
     private javax.swing.JPanel panelCenter;
-    private javax.swing.JPanel panelSouth;
     public static javax.swing.JTextField textPreferencesLHI;
     // End of variables declaration//GEN-END:variables
 }

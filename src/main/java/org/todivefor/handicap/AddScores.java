@@ -89,8 +89,6 @@ public class AddScores extends javax.swing.JPanel
         btnAddScoreDelete.setVisible(false);        // Initially turn "Delete" button off
         lblAddScoresPCC = new javax.swing.JLabel();
         txtAddScoresPCC = new javax.swing.JTextField();
-        panelSouth = new javax.swing.JPanel();
-        btnAddScoresExit = new javax.swing.JButton();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -259,41 +257,7 @@ public class AddScores extends javax.swing.JPanel
                         });
                     }
                 });
-
-                btnAddScoresExit.setIcon(IconUtils.getNavigationIcon("Back", 24));
-                btnAddScoresExit.setText("Back");
-                btnAddScoresExit.addActionListener(new java.awt.event.ActionListener()
-                {
-                    public void actionPerformed(java.awt.event.ActionEvent evt)
-                    {
-                        btnAddScoresExitActionPerformed(evt);
-                    }
-                });
-                panelSouth.add(btnAddScoresExit);
-
-                add(panelSouth, java.awt.BorderLayout.PAGE_END);
-                panelAddScores = this;                              // AddScores main panel
-                //  Not needed with RXCardLayout    <RXCardLayout>
-                //      Focus textFieldScore for card layout
-                panelAddScores.addComponentListener(new ComponentAdapter()
-                {
-                    @Override
-                    public void componentShown(java.awt.event.ComponentEvent e)
-                    {
-                        textFieldScore.requestFocusInWindow();
-                    }
-                });
             }// </editor-fold>//GEN-END:initComponents
-
-    private void btnAddScoresExitActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnAddScoresExitActionPerformed
-    {//GEN-HEADEREND:event_btnAddScoresExitActionPerformed
-        btnAddScoreDelete.setVisible(false);			// Make delete button not visible
-        btnAddScoresAdd.setText("Add");				// change button back to Add in Add Score
-//        HandicapMain.cards.show(getParent(), HandicapMain.DISPLAYSCORES);   // DISPLAYSCORES or MAINMENU
-        HandicapMain.resetTitle();                              // Set title in frame
-        HandicapMain.cards.show(getParent(), 
-                (String) HandicapMain.returnStack.pop());       // DISPLAYSCORES or MAINMENU
-    }//GEN-LAST:event_btnAddScoresExitActionPerformed
 
     @SuppressWarnings("unchecked")
     private void btnAddScoreDeleteActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnAddScoreDeleteActionPerformed
@@ -1111,7 +1075,6 @@ public class AddScores extends javax.swing.JPanel
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public static javax.swing.JButton btnAddScoreDelete;
     public static javax.swing.JButton btnAddScoresAdd;
-    private javax.swing.JButton btnAddScoresExit;
     public static javax.swing.JCheckBox chckbxAddScoresNineHoleScore;
     public static javax.swing.JCheckBox chckbxAddScoresTournamentScore;
     public static javax.swing.JComboBox<String> comboBoxCourse;
@@ -1122,7 +1085,6 @@ public class AddScores extends javax.swing.JPanel
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     public static javax.swing.JLabel lblAddScoresPCC;
-    private javax.swing.JPanel panelSouth;
     private javax.swing.JPanel panelWest;
     public static javax.swing.JTextField textFieldCourseRating;
     public static javax.swing.JTextField textFieldCourseSlope;

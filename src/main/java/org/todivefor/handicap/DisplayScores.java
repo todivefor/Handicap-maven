@@ -88,8 +88,6 @@ public class DisplayScores extends javax.swing.JPanel
         btnCalculateCourseHandicap = new javax.swing.JButton();
         textDisplayScoresIndexAdj = new javax.swing.JTextField();
         textDisplayScoresIndexAdj.setVisible(false);
-        panelSouth = new javax.swing.JPanel();
-        btnBack = new javax.swing.JButton();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -185,36 +183,7 @@ public class DisplayScores extends javax.swing.JPanel
         panelCenter.add(textDisplayScoresIndexAdj, gridBagConstraints);
 
         add(panelCenter, java.awt.BorderLayout.CENTER);
-
-        btnBack.setIcon(IconUtils.getNavigationIcon("Back", 24));
-        btnBack.setText("Back");
-        btnBack.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                btnBackActionPerformed(evt);
-            }
-        });
-        panelSouth.add(btnBack);
-
-        add(panelSouth, java.awt.BorderLayout.PAGE_END);
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btnBackActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnBackActionPerformed
-    {//GEN-HEADEREND:event_btnBackActionPerformed
-        archiveYr = 0;                                      // Turn off in case displaying archive
-        tournament = false;                                 // Set not tournament score display
-        scoreEditingAllowed = true;                         // Allow editing of scores
-        /*
-        refreshScoreTable(HandicapMain.scoreTableName);     // Refresh scores table
-        */
-        HandicapMain.resetTitle();                          // Set title in frame
-        HandicapMain.lastCard = HandicapMain.MAINMENU;      // Force MAINMENU
-        AddScores.txtAddScoresPCC.setVisible(false);        // Make PCC invisible
-        AddScores.lblAddScoresPCC.setVisible(false);        // Make PCC label invisible
-        HandicapMain.cards.show(getParent(), 
-            (String) HandicapMain.returnStack.pop());   // Show MAINMENU
-    }//GEN-LAST:event_btnBackActionPerformed
 
     private void tableDisplayScoresMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_tableDisplayScoresMouseClicked
     {//GEN-HEADEREND:event_tableDisplayScoresMouseClicked
@@ -1304,13 +1273,11 @@ public class DisplayScores extends javax.swing.JPanel
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnBack;
     private javax.swing.JButton btnCalculateCourseHandicap;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel panelCenter;
-    private javax.swing.JPanel panelSouth;
     private javax.swing.JScrollPane scrollPane;
     public static javax.swing.JTable tableDisplayScores;
     public static javax.swing.JTextField textDisplayScoresAverageScore;

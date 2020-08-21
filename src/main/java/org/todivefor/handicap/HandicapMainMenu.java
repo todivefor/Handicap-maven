@@ -7,6 +7,7 @@ package org.todivefor.handicap;
 
 import java.util.Date;
 import javax.swing.JOptionPane;
+import static org.todivefor.handicap.HandicapMain.btnHandicapMainExit;
 
 /**
  *
@@ -72,8 +73,6 @@ public class HandicapMainMenu extends javax.swing.JPanel
         btnEditCourses = new javax.swing.JButton();
         panelPicture = new javax.swing.JPanel();
         lblOcc = new javax.swing.JLabel();
-        panelSouth = new javax.swing.JPanel();
-        btnExit = new javax.swing.JButton();
 
         setPreferredSize(new java.awt.Dimension(400, 300));
         setLayout(new java.awt.BorderLayout());
@@ -130,62 +129,51 @@ public class HandicapMainMenu extends javax.swing.JPanel
         );
 
         add(panelPicture, java.awt.BorderLayout.CENTER);
-
-        btnExit.setText("Exit");
-        btnExit.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                btnExitActionPerformed(evt);
-            }
-        });
-        panelSouth.add(btnExit);
-
-        add(panelSouth, java.awt.BorderLayout.PAGE_END);
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btnExitActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnExitActionPerformed
-    {//GEN-HEADEREND:event_btnExitActionPerformed
-        System.exit(0);                                         // Exit application
-    }//GEN-LAST:event_btnExitActionPerformed
 
     private void btnDisplayScoresActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnDisplayScoresActionPerformed
     {//GEN-HEADEREND:event_btnDisplayScoresActionPerformed
-        HandicapMain.lastCard = HandicapMain.DISPLAYSCORES;     // Where we are
-        HandicapMain.returnStack.push(HandicapMain.MAINMENU);   // push MAINMENU onto returnStack
-        DisplayScores.scoreEditingAllowed = true;               // score table display, can edit
-        if (DisplayScores.scoreDataChanged)                     // Need to rebuild display?
+        HandicapMain.lastCard = HandicapMain.DISPLAYSCORES;                         // Where we are
+        HandicapMain.returnStack.push(HandicapMain.MAINMENU);                       // push MAINMENU onto returnStack
+        DisplayScores.scoreEditingAllowed = true;                                   // score table display, can edit
+        if (DisplayScores.scoreDataChanged)                                         // Need to rebuild display?
         {
-            DisplayScores.tournament = false;                               // Set not tournament score display
-            DisplayScores.refreshScoreTable(HandicapMain.scoreTableName);   // Refresh scores table
-            DisplayScores.scoreDataChanged = false;                         // No need to display until next change
+            DisplayScores.tournament = false;                                       // Set not tournament score display
+            DisplayScores.refreshScoreTable(HandicapMain.scoreTableName);           // Refresh scores table
+            DisplayScores.scoreDataChanged = false;                                 // No need to display until next change
         }
-        HandicapMain.setFrameTitle("Handicap Display Scores - " +  HandicapMain.userName);
+        HandicapMain.setFrameTitle("Handicap Display Scores - " +  HandicapMain.    // Title
+                userName);
+        HandicapMain.btnHandicapMainExit.setText("Back");                           // Exit to back
 /*    
         int lineNum = Thread.currentThread().getStackTrace()[1].
                 getLineNumber();                                        // *****debug*****
         hMain.printReturnStack(this.getClass().getName() +
                 " " + lineNum);                                         // *****debug*****        
 */
-        HandicapMain.cards.show(getParent(), HandicapMain.DISPLAYSCORES);   // Show DisplayScores
+        HandicapMain.cards.show(getParent(), HandicapMain.DISPLAYSCORES);           // Show DisplayScores
     }//GEN-LAST:event_btnDisplayScoresActionPerformed
 
     private void btnAddScoresActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnAddScoresActionPerformed
     {//GEN-HEADEREND:event_btnAddScoresActionPerformed
-        HandicapMain.lastCard = HandicapMain.ADDSCORES;                 // Where we are
-        HandicapMain.returnStack.push(HandicapMain.MAINMENU);           // push MAINMENU onto returnStack
-        addScore();                                                     // Make text fields select all
-//        AddScores.textFieldScore.requestFocusInWindow();                // Request focus for
-        HandicapMain.setFrameTitle("Handicap Add Scores - " +  HandicapMain.userName);
-        HandicapMain.cards.show(getParent(), HandicapMain.ADDSCORES);   // Go to AddScores
+        HandicapMain.lastCard = HandicapMain.ADDSCORES;                             // Where we are
+        HandicapMain.returnStack.push(HandicapMain.MAINMENU);                       // push MAINMENU onto returnStack
+        addScore();                                                                 // Make text fields select all
+//        AddScores.textFieldScore.requestFocusInWindow();                          // Request focus for
+        HandicapMain.setFrameTitle("Handicap Add Scores - " +  HandicapMain.
+                userName);                                                          // Title
+        btnHandicapMainExit.setText("Back");                                        // Exit to back
+        HandicapMain.cards.show(getParent(), HandicapMain.ADDSCORES);               // Go to AddScores
     }//GEN-LAST:event_btnAddScoresActionPerformed
 
     private void btnEditCoursesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnEditCoursesActionPerformed
     {//GEN-HEADEREND:event_btnEditCoursesActionPerformed
-        HandicapMain.lastCard = HandicapMain.MAINTAINCOURSES;               // Where we are
-        HandicapMain.returnStack.push(HandicapMain.MAINMENU);               // push MAINTAINCOURSES onto returnStack      
-        HandicapMain.setFrameTitle("Handicap Maintain Courses - " +  HandicapMain.userName);
-        HandicapMain.cards.show(getParent(), HandicapMain.MAINTAINCOURSES); // MAINTAINCOURSEs card
+        HandicapMain.lastCard = HandicapMain.MAINTAINCOURSES;                       // Where we are
+        HandicapMain.returnStack.push(HandicapMain.MAINMENU);                       // push MAINTAINCOURSES onto returnStack      
+        HandicapMain.setFrameTitle("Handicap Maintain Courses - " +  HandicapMain.
+                userName);                                                          // Title
+        btnHandicapMainExit.setText("Back");                                        // Exit to back button
+        HandicapMain.cards.show(getParent(), HandicapMain.MAINTAINCOURSES);         // MAINTAINCOURSEs card
     }//GEN-LAST:event_btnEditCoursesActionPerformed
 
 /*
@@ -208,10 +196,8 @@ public class HandicapMainMenu extends javax.swing.JPanel
     public static javax.swing.JButton btnAddScores;
     public static javax.swing.JButton btnDisplayScores;
     public static javax.swing.JButton btnEditCourses;
-    private javax.swing.JButton btnExit;
     private javax.swing.JLabel lblOcc;
     private javax.swing.JPanel panelNorth;
     private javax.swing.JPanel panelPicture;
-    private javax.swing.JPanel panelSouth;
     // End of variables declaration//GEN-END:variables
 }

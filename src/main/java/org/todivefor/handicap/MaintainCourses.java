@@ -67,8 +67,6 @@ public class MaintainCourses extends javax.swing.JPanel
         jLabel1 = new javax.swing.JLabel();
         textFieldAddCourseCoursePar = new javax.swing.JTextField();
         textFieldAddCourseCoursePar.setColumns(2);
-        panelSouth = new javax.swing.JPanel();
-        btnAddCourseExit = new javax.swing.JButton();
         scrollPaneCenter = new javax.swing.JScrollPane();
         tableDisplayCourses = new javax.swing.JTable();
 
@@ -190,19 +188,6 @@ public class MaintainCourses extends javax.swing.JPanel
                     }
                 });
 
-                btnAddCourseExit.setIcon(IconUtils.getNavigationIcon("Back", 24));
-                btnAddCourseExit.setText("Back");
-                btnAddCourseExit.addActionListener(new java.awt.event.ActionListener()
-                {
-                    public void actionPerformed(java.awt.event.ActionEvent evt)
-                    {
-                        btnAddCourseExitActionPerformed(evt);
-                    }
-                });
-                panelSouth.add(btnAddCourseExit);
-
-                add(panelSouth, java.awt.BorderLayout.PAGE_END);
-
                 tableDisplayCourses.setModel(new javax.swing.table.DefaultTableModel(
                     new Object [][]
                     {
@@ -238,17 +223,6 @@ public class MaintainCourses extends javax.swing.JPanel
                         }
                     });
                 }// </editor-fold>//GEN-END:initComponents
-
-    private void btnAddCourseExitActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnAddCourseExitActionPerformed
-    {//GEN-HEADEREND:event_btnAddCourseExitActionPerformed
-        btnSave.setVisible(true);                       // Set buttons
-        btnUpdate.setVisible(false);                    //      to
-        btnDelete.setVisible(false);                    //          initial state
-        HandicapMain.resetTitle();                      // Set title in frame
-        HandicapMain.lastCard = HandicapMain.MAINMENU;      // Force MAINMENU
-        HandicapMain.cards.show(getParent(), 
-                (String) HandicapMain.returnStack.pop());   // Return whence we came
-    }//GEN-LAST:event_btnAddCourseExitActionPerformed
 
     private void tableDisplayCoursesMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_tableDisplayCoursesMouseClicked
     {//GEN-HEADEREND:event_tableDisplayCoursesMouseClicked
@@ -539,7 +513,6 @@ public class MaintainCourses extends javax.swing.JPanel
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnAddCourseExit;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnSave;
     private javax.swing.JButton btnUpdate;
@@ -547,7 +520,6 @@ public class MaintainCourses extends javax.swing.JPanel
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JPanel panelSouth;
     private javax.swing.JPanel panelWest;
     private javax.swing.JScrollPane scrollPaneCenter;
     public static javax.swing.JTable tableDisplayCourses;
