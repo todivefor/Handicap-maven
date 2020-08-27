@@ -86,11 +86,14 @@ import org.todivefor.stringutils.StringUtils;
  * 0.1.9
  *      Cleaned up the CardLayout. JFrame has menubar, dataPanel (card) and
  *          Exit / Back button
+ * 
+ * 0.2.0
+ *      Changed POM to get rid of jlfgr as a dependency, now resides in IconUtils
  */
 public class HandicapMain extends JFrame 
 {
-        public static final String VERSION = "0.1.9";                               // Application version used in "About"
-        public static final String REVISIONDATE = "08/21/2020";                     // Revision date
+        public static final String VERSION = "0.2.0";                               // Application version used in "About"
+        public static final String REVISIONDATE = "08/27/2020";                     // Revision date
         public static final boolean TEST = false;                                   // use test preferences
 /*
  * 	Components referenced from other classes

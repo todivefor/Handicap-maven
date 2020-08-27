@@ -43,4 +43,11 @@
                 <exec.executable>java</exec.executable>
             </properties>
         </action>
+        <action>
+            <actionName>CUSTOM-CheckUpdates</actionName>
+            <displayName>CheckUpdates</displayName>
+            <goals>
+                <goal>versions:display-dependency-updates</goal>
+            </goals>
+        </action>
     </actions>
