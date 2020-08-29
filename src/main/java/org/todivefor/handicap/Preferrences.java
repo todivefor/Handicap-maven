@@ -126,7 +126,6 @@ public class Preferrences extends javax.swing.JPanel
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents()
     {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         panelCenter = new javax.swing.JPanel();
         //Create a file chooser
@@ -149,19 +148,14 @@ public class Preferrences extends javax.swing.JPanel
         comboBoxPreferencesLookAndFeel = new javax.swing.JComboBox<>();
         lblPreferencesTheme = new javax.swing.JLabel();
         comboBoxPreferencesTheme = new javax.swing.JComboBox<>();
-        btnPreferencesDebug = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         comboBoxPreferencesPlayer = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
         textPreferencesLHI = new javax.swing.JTextField();
+        btnPreferencesDebug = new javax.swing.JButton();
         chkBoxPreferencesWHC = new javax.swing.JCheckBox();
 
-        setLayout(new java.awt.BorderLayout());
-
-        panelCenter.setLayout(new java.awt.GridBagLayout());
-
         lblLookAndFeel.setText("Look and Feel");
-        panelCenter.add(lblLookAndFeel, new java.awt.GridBagConstraints());
 
         comboBoxPreferencesLookAndFeel.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{} ));
         lookandFeelListener = new ActionListener()
@@ -171,15 +165,8 @@ public class Preferrences extends javax.swing.JPanel
                 comboBoxPreferencesLookAndFeelActionPerformed(evt);
             }
         };
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(0, 19, 0, 19);
-        panelCenter.add(comboBoxPreferencesLookAndFeel, gridBagConstraints);
 
         lblPreferencesTheme.setText("Theme");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(13, 13, 13, 13);
-        panelCenter.add(lblPreferencesTheme, gridBagConstraints);
 
         comboBoxPreferencesTheme.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{} ));
         lookandFeelThemeListener = new ActionListener()
@@ -189,26 +176,8 @@ public class Preferrences extends javax.swing.JPanel
                 comboBoxPreferencesThemeActionPerformed(evt);
             }
         };
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 1;
-        panelCenter.add(comboBoxPreferencesTheme, gridBagConstraints);
 
-        btnPreferencesDebug.setText("Debug");
-        btnPreferencesDebug.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                btnPreferencesDebugActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        panelCenter.add(btnPreferencesDebug, gridBagConstraints);
-
-        jLabel1.setText("  Player:    ");
-        panelCenter.add(jLabel1, new java.awt.GridBagConstraints());
+        jLabel1.setText("Player");
 
         playerListener = new ActionListener()
         {
@@ -217,13 +186,8 @@ public class Preferrences extends javax.swing.JPanel
                 comboBoxPreferencesPlayerActionPerformed(evt);
             }
         };
-        panelCenter.add(comboBoxPreferencesPlayer, new java.awt.GridBagConstraints());
 
-        jLabel2.setText("Low HI");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 1;
-        panelCenter.add(jLabel2, gridBagConstraints);
+        jLabel2.setText("Low HI:");
 
         textPreferencesLHI.setText("99.9");
         textPreferencesLHI.addActionListener(new java.awt.event.ActionListener()
@@ -233,10 +197,15 @@ public class Preferrences extends javax.swing.JPanel
                 textPreferencesLHIActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
-        panelCenter.add(textPreferencesLHI, gridBagConstraints);
+
+        btnPreferencesDebug.setText("Debug");
+        btnPreferencesDebug.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                btnPreferencesDebugActionPerformed(evt);
+            }
+        });
 
         chkBoxPreferencesWHC.setText("Old HC");
         chkBoxPreferencesWHC.addActionListener(new java.awt.event.ActionListener()
@@ -246,12 +215,85 @@ public class Preferrences extends javax.swing.JPanel
                 chkBoxPreferencesWHCActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        panelCenter.add(chkBoxPreferencesWHC, gridBagConstraints);
 
-        add(panelCenter, java.awt.BorderLayout.CENTER);
+        javax.swing.GroupLayout panelCenterLayout = new javax.swing.GroupLayout(panelCenter);
+        panelCenter.setLayout(panelCenterLayout);
+        panelCenterLayout.setHorizontalGroup(
+            panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelCenterLayout.createSequentialGroup()
+                .addGap(50, 50, 50)
+                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblLookAndFeel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lblPreferencesTheme, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(chkBoxPreferencesWHC, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel1)))
+                .addGap(18, 18, 18)
+                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelCenterLayout.createSequentialGroup()
+                        .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(comboBoxPreferencesTheme, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(comboBoxPreferencesLookAndFeel, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelCenterLayout.createSequentialGroup()
+                        .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(panelCenterLayout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(btnPreferencesDebug, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(panelCenterLayout.createSequentialGroup()
+                                .addComponent(comboBoxPreferencesPlayer, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(textPreferencesLHI, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(97, 97, 97)))
+                        .addGap(267, 267, 267))))
+        );
+
+        panelCenterLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {comboBoxPreferencesLookAndFeel, comboBoxPreferencesPlayer, comboBoxPreferencesTheme});
+
+        panelCenterLayout.setVerticalGroup(
+            panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelCenterLayout.createSequentialGroup()
+                .addGap(0, 100, Short.MAX_VALUE)
+                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblLookAndFeel)
+                    .addComponent(comboBoxPreferencesLookAndFeel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(5, 5, 5)
+                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblPreferencesTheme)
+                    .addComponent(comboBoxPreferencesTheme, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(28, 28, 28)
+                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(comboBoxPreferencesPlayer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2)
+                    .addComponent(textPreferencesLHI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addGap(18, 18, 18)
+                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnPreferencesDebug)
+                    .addComponent(chkBoxPreferencesWHC))
+                .addGap(32, 32, 32))
+        );
+
+        panelCenterLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {comboBoxPreferencesLookAndFeel, comboBoxPreferencesPlayer, comboBoxPreferencesTheme, textPreferencesLHI});
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(panelCenter, javax.swing.GroupLayout.PREFERRED_SIZE, 523, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(panelCenter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         textPreferencesLHI.addFocusListener(new java.awt.event.FocusAdapter()
             {
                 public void focusGained(java.awt.event.FocusEvent evt)

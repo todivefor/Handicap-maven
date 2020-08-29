@@ -27,7 +27,6 @@ import javax.swing.table.TableColumn;
 import net.proteanit.sql.DbUtils;
 import org.todivefor.handicap.process.DiffRow;
 import org.todivefor.handicap.process.PrefsProc;
-import org.todivefor.iconutils.IconUtils;
 import org.todivefor.stringutils.StringUtils;
 
 /**
@@ -74,7 +73,6 @@ public class DisplayScores extends javax.swing.JPanel
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents()
     {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         scrollPane = new javax.swing.JScrollPane();
         tableDisplayScores = new javax.swing.JTable();
@@ -88,8 +86,6 @@ public class DisplayScores extends javax.swing.JPanel
         btnCalculateCourseHandicap = new javax.swing.JButton();
         textDisplayScoresIndexAdj = new javax.swing.JTextField();
         textDisplayScoresIndexAdj.setVisible(false);
-
-        setLayout(new java.awt.BorderLayout());
 
         tableDisplayScores.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][]
@@ -113,57 +109,20 @@ public class DisplayScores extends javax.swing.JPanel
         });
         scrollPane.setViewportView(tableDisplayScores);
 
-        add(scrollPane, java.awt.BorderLayout.PAGE_START);
-
-        java.awt.GridBagLayout panelCenterLayout = new java.awt.GridBagLayout();
-        panelCenterLayout.columnWidths = new int[] {0, 15, 0, 15, 0, 15, 0};
-        panelCenterLayout.rowHeights = new int[] {0, 10, 0, 10, 0};
-        panelCenter.setLayout(panelCenterLayout);
-
         jLabel1.setText("Number Scores");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelCenter.add(jLabel1, gridBagConstraints);
 
         jLabel2.setText("Index");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelCenter.add(jLabel2, gridBagConstraints);
 
         jLabel3.setText("Average Score");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelCenter.add(jLabel3, gridBagConstraints);
 
         textDisplayScoresNumberScores.setText("999");
         textDisplayScoresNumberScores.setFocusable(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelCenter.add(textDisplayScoresNumberScores, gridBagConstraints);
 
         textDisplayScoresIndex.setText("99.9");
         textDisplayScoresIndex.setFocusable(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelCenter.add(textDisplayScoresIndex, gridBagConstraints);
 
         textDisplayScoresAverageScore.setText("999.9");
         textDisplayScoresAverageScore.setFocusable(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelCenter.add(textDisplayScoresAverageScore, gridBagConstraints);
 
         btnCalculateCourseHandicap.setText("Calculate Course Handicaps");
         btnCalculateCourseHandicap.addActionListener(new java.awt.event.ActionListener()
@@ -173,16 +132,83 @@ public class DisplayScores extends javax.swing.JPanel
                 btnCalculateCourseHandicapActionPerformed(evt);
             }
         });
-        panelCenter.add(btnCalculateCourseHandicap, new java.awt.GridBagConstraints());
 
         textDisplayScoresIndexAdj.setText("99.9N");
         textDisplayScoresIndexAdj.setFocusable(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 2;
-        panelCenter.add(textDisplayScoresIndexAdj, gridBagConstraints);
 
-        add(panelCenter, java.awt.BorderLayout.CENTER);
+        javax.swing.GroupLayout panelCenterLayout = new javax.swing.GroupLayout(panelCenter);
+        panelCenter.setLayout(panelCenterLayout);
+        panelCenterLayout.setHorizontalGroup(
+            panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelCenterLayout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelCenterLayout.createSequentialGroup()
+                        .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelCenterLayout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addGap(15, 15, 15)
+                                .addComponent(textDisplayScoresNumberScores, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(panelCenterLayout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addGap(75, 75, 75)
+                                .addComponent(textDisplayScoresIndex, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(57, 57, 57)
+                        .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnCalculateCourseHandicap)
+                            .addComponent(textDisplayScoresIndexAdj, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(panelCenterLayout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addGap(22, 22, 22)
+                        .addComponent(textDisplayScoresAverageScore, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(20, 20, 20))
+        );
+        panelCenterLayout.setVerticalGroup(
+            panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelCenterLayout.createSequentialGroup()
+                .addGap(17, 17, 17)
+                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelCenterLayout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jLabel1))
+                    .addGroup(panelCenterLayout.createSequentialGroup()
+                        .addGap(1, 1, 1)
+                        .addComponent(textDisplayScoresNumberScores, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnCalculateCourseHandicap))
+                .addGap(18, 18, 18)
+                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelCenterLayout.createSequentialGroup()
+                        .addGap(5, 5, 5)
+                        .addComponent(jLabel2))
+                    .addComponent(textDisplayScoresIndex, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(textDisplayScoresIndexAdj, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelCenterLayout.createSequentialGroup()
+                        .addGap(5, 5, 5)
+                        .addComponent(jLabel3))
+                    .addComponent(textDisplayScoresAverageScore, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(panelCenter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 9, Short.MAX_VALUE))
+                    .addComponent(scrollPane))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(scrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(74, 74, 74)
+                .addComponent(panelCenter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
     }// </editor-fold>//GEN-END:initComponents
 
     private void tableDisplayScoresMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_tableDisplayScoresMouseClicked

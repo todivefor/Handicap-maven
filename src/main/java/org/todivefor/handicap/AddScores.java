@@ -6,7 +6,6 @@
 package org.todivefor.handicap;
 
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,6 +13,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -21,7 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import org.todivefor.handicap.process.PrefsProc;
-import org.todivefor.iconutils.IconUtils;
 import org.todivefor.stringutils.StringUtils;
 
 /**
@@ -54,6 +53,12 @@ public class AddScores extends javax.swing.JPanel
         
         lblAddScoresPCC.setVisible(false);                          // Set PCC label to invisible
         txtAddScoresPCC.setVisible(false);                          // Set PCC field to invisible
+        Calendar now = Calendar.getInstance();
+        System.out.println("Run date is : " + (now.get(Calendar.MONTH) + 1) + "/" + 
+                now.get(Calendar.DATE) + "/" + 
+                now.get(Calendar.YEAR));
+        if (now.get(Calendar.YEAR) >= (HandicapMain.WORLDHCYEAR))                   // World HC?
+            chckbxAddScoresTournamentScore.setVisible(false);                       // Yes - don't allow tournament
 
     }
 
@@ -66,7 +71,6 @@ public class AddScores extends javax.swing.JPanel
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents()
     {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         panelWest = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -90,58 +94,22 @@ public class AddScores extends javax.swing.JPanel
         lblAddScoresPCC = new javax.swing.JLabel();
         txtAddScoresPCC = new javax.swing.JTextField();
 
-        setLayout(new java.awt.BorderLayout());
-
         //  textFieldScore.requestFocusInWindow();
-        java.awt.GridBagLayout panelWestLayout = new java.awt.GridBagLayout();
-        panelWestLayout.columnWidths = new int[] {0, 15, 0, 15, 0, 15, 0, 15, 0, 15, 0};
-        panelWestLayout.rowHeights = new int[] {0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0};
-        panelWest.setLayout(panelWestLayout);
 
         jLabel1.setText("Score");
         jLabel1.setFocusable(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        panelWest.add(jLabel1, gridBagConstraints);
 
         jLabel2.setText("Date");
         jLabel2.setFocusable(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        panelWest.add(jLabel2, gridBagConstraints);
 
         jLabel3.setText("Course");
         jLabel3.setFocusable(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        panelWest.add(jLabel3, gridBagConstraints);
 
         jLabel4.setText("Course Rating");
         jLabel4.setFocusable(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        panelWest.add(jLabel4, gridBagConstraints);
 
         jLabel5.setText("Course Slope");
         jLabel5.setFocusable(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 8;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        panelWest.add(jLabel5, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(textFieldScore, gridBagConstraints);
 
         textFieldCourseRating.addActionListener(new java.awt.event.ActionListener()
         {
@@ -150,16 +118,6 @@ public class AddScores extends javax.swing.JPanel
                 textFieldCourseRatingActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(textFieldCourseRating, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 8;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(textFieldCourseSlope, gridBagConstraints);
 
         comboBoxCourse.setEditable(true);
         courseListener = new ActionListener()
@@ -169,29 +127,10 @@ public class AddScores extends javax.swing.JPanel
                 comboBoxCourseActionPerformed(evt);
             }
         };
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(comboBoxCourse, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(dateChooserAddScoresDate, gridBagConstraints);
-        dateChooserAddScoresDate.setDateFormatString("MM/dd/yy");
 
         chckbxAddScoresNineHoleScore.setText("Nine Hole Score");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 8;
-        gridBagConstraints.gridy = 0;
-        panelWest.add(chckbxAddScoresNineHoleScore, gridBagConstraints);
 
         chckbxAddScoresTournamentScore.setText("Tournament Score");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 10;
-        gridBagConstraints.gridy = 0;
-        panelWest.add(chckbxAddScoresTournamentScore, gridBagConstraints);
 
         btnAddScoresAdd.setText("Add");
         btnAddScoresAdd.addActionListener(new java.awt.event.ActionListener()
@@ -201,11 +140,6 @@ public class AddScores extends javax.swing.JPanel
                 btnAddScoresAddActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 14;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(btnAddScoresAdd, gridBagConstraints);
 
         btnAddScoreDelete.setText("Delete");
         btnAddScoreDelete.addActionListener(new java.awt.event.ActionListener()
@@ -215,30 +149,109 @@ public class AddScores extends javax.swing.JPanel
                 btnAddScoreDeleteActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 16;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(btnAddScoreDelete, gridBagConstraints);
 
         lblAddScoresPCC.setText("PCC");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.ipadx = 10;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        panelWest.add(lblAddScoresPCC, gridBagConstraints);
 
         txtAddScoresPCC.setText("-1");
         txtAddScoresPCC.setMinimumSize(new java.awt.Dimension(30, 26));
         txtAddScoresPCC.setPreferredSize(new java.awt.Dimension(30, 26));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(txtAddScoresPCC, gridBagConstraints);
 
-        add(panelWest, java.awt.BorderLayout.CENTER);
+        javax.swing.GroupLayout panelWestLayout = new javax.swing.GroupLayout(panelWest);
+        panelWest.setLayout(panelWestLayout);
+        panelWestLayout.setHorizontalGroup(
+            panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelWestLayout.createSequentialGroup()
+                .addContainerGap(31, Short.MAX_VALUE)
+                .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnAddScoreDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(panelWestLayout.createSequentialGroup()
+                        .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(btnAddScoresAdd, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(textFieldScore, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(comboBoxCourse, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(dateChooserAddScoresDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(textFieldCourseSlope)
+                            .addComponent(textFieldCourseRating))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblAddScoresPCC, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtAddScoresPCC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(42, 42, 42)
+                        .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(chckbxAddScoresTournamentScore)
+                            .addComponent(chckbxAddScoresNineHoleScore))))
+                .addContainerGap(31, Short.MAX_VALUE))
+        );
+
+        panelWestLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {textFieldCourseRating, textFieldCourseSlope, textFieldScore});
+
+        panelWestLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnAddScoreDelete, btnAddScoresAdd});
+
+        panelWestLayout.setVerticalGroup(
+            panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelWestLayout.createSequentialGroup()
+                .addContainerGap(10, Short.MAX_VALUE)
+                .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelWestLayout.createSequentialGroup()
+                        .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(lblAddScoresPCC)
+                                .addComponent(txtAddScoresPCC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(chckbxAddScoresNineHoleScore))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jLabel1)
+                                .addComponent(textFieldScore, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(18, 18, 18)
+                        .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(dateChooserAddScoresDate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(chckbxAddScoresTournamentScore, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGap(18, 18, 18)
+                .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(comboBoxCourse, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(textFieldCourseRating, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(textFieldCourseSlope, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(btnAddScoresAdd)
+                .addGap(18, 18, 18)
+                .addComponent(btnAddScoreDelete)
+                .addContainerGap())
+        );
+
+        panelWestLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnAddScoreDelete, btnAddScoresAdd});
+
+        dateChooserAddScoresDate.setDateFormatString("MM/dd/yy");
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(panelWest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(panelWest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(200, 200, 200))
+        );
+
         /*
         *
         * 				This makes score, rating, and slope select all

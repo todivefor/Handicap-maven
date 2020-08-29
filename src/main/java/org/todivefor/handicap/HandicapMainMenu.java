@@ -110,22 +110,23 @@ public class HandicapMainMenu extends javax.swing.JPanel
         add(panelNorth, java.awt.BorderLayout.PAGE_START);
 
         lblOcc.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/todivefor/handicap/images/OCC-9.jpg"))); // NOI18N
+        lblOcc.setPreferredSize(new java.awt.Dimension(750, 500));
 
         javax.swing.GroupLayout panelPictureLayout = new javax.swing.GroupLayout(panelPicture);
         panelPicture.setLayout(panelPictureLayout);
         panelPictureLayout.setHorizontalGroup(
             panelPictureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPictureLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(lblOcc)
-                .addContainerGap())
+                .addContainerGap(206, Short.MAX_VALUE)
+                .addComponent(lblOcc, javax.swing.GroupLayout.PREFERRED_SIZE, 742, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(64, 64, 64))
         );
         panelPictureLayout.setVerticalGroup(
             panelPictureLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPictureLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(lblOcc)
-                .addGap(262, 262, 262))
+            .addGroup(panelPictureLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblOcc, javax.swing.GroupLayout.PREFERRED_SIZE, 685, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(279, Short.MAX_VALUE))
         );
 
         add(panelPicture, java.awt.BorderLayout.CENTER);

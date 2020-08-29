@@ -14,7 +14,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import net.proteanit.sql.DbUtils;
-import org.todivefor.iconutils.IconUtils;
 import org.todivefor.stringutils.StringUtils;
 
 /**
@@ -49,7 +48,6 @@ public class MaintainCourses extends javax.swing.JPanel
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents()
     {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         panelWest = new javax.swing.JPanel();
         btnSave = new javax.swing.JButton();
@@ -69,13 +67,7 @@ public class MaintainCourses extends javax.swing.JPanel
         textFieldAddCourseCoursePar.setColumns(2);
         scrollPaneCenter = new javax.swing.JScrollPane();
         tableDisplayCourses = new javax.swing.JTable();
-
-        setLayout(new java.awt.BorderLayout());
-
-        java.awt.GridBagLayout panelWestLayout = new java.awt.GridBagLayout();
-        panelWestLayout.columnWidths = new int[] {0, 15, 0, 15, 0};
-        panelWestLayout.rowHeights = new int[] {0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0};
-        panelWest.setLayout(panelWestLayout);
+        jPanel1 = new javax.swing.JPanel();
 
         btnSave.setText("Add");
         btnSave.addActionListener(new java.awt.event.ActionListener()
@@ -85,11 +77,6 @@ public class MaintainCourses extends javax.swing.JPanel
                 btnSaveActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 10;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(btnSave, gridBagConstraints);
 
         btnUpdate.setText("Update");
         btnUpdate.addActionListener(new java.awt.event.ActionListener()
@@ -99,11 +86,6 @@ public class MaintainCourses extends javax.swing.JPanel
                 btnUpdateActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 12;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(btnUpdate, gridBagConstraints);
 
         btnDelete.setText("Delete");
         btnDelete.addActionListener(new java.awt.event.ActionListener()
@@ -113,63 +95,132 @@ public class MaintainCourses extends javax.swing.JPanel
                 btnDeleteActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 14;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(btnDelete, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(textFieldAddCourseName, gridBagConstraints);
 
         textFieldAddCourseCourseRating.setColumns(3);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(textFieldAddCourseCourseRating, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(textFieldAddCourseCourseSlope, gridBagConstraints);
 
         jLabel4.setText("Course");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(jLabel4, gridBagConstraints);
 
         jLabel5.setText("Rating");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(jLabel5, gridBagConstraints);
 
         jLabel6.setText("Slope");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(jLabel6, gridBagConstraints);
 
         jLabel1.setText("Par");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(jLabel1, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        panelWest.add(textFieldAddCourseCoursePar, gridBagConstraints);
 
-        add(panelWest, java.awt.BorderLayout.LINE_START);
+        javax.swing.GroupLayout panelWestLayout = new javax.swing.GroupLayout(panelWest);
+        panelWest.setLayout(panelWestLayout);
+        panelWestLayout.setHorizontalGroup(
+            panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelWestLayout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelWestLayout.createSequentialGroup()
+                        .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel4))
+                        .addGap(18, 18, Short.MAX_VALUE)
+                        .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(textFieldAddCourseCoursePar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(textFieldAddCourseCourseSlope, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(textFieldAddCourseCourseRating, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(textFieldAddCourseName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(btnDelete)
+                    .addComponent(btnUpdate)
+                    .addComponent(btnSave))
+                .addGap(12, 12, 12))
+        );
+
+        panelWestLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnDelete, btnSave, btnUpdate});
+
+        panelWestLayout.setVerticalGroup(
+            panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelWestLayout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(textFieldAddCourseName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(textFieldAddCourseCourseRating, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(textFieldAddCourseCourseSlope, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(panelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(textFieldAddCourseCoursePar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(btnSave)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnUpdate)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnDelete))
+        );
+
+        scrollPaneCenter.setBorder(null);
+
+        tableDisplayCourses.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][]
+            {
+                {},
+                {},
+                {},
+                {}
+            },
+            new String []
+            {
+
+            }
+        ));
+        tableDisplayCourses.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
+                tableDisplayCoursesMouseClicked(evt);
+            }
+        });
+        scrollPaneCenter.setViewportView(tableDisplayCourses);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 407, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 66, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 100, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(31, 31, 31)
+                .addComponent(panelWest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(scrollPaneCenter, javax.swing.GroupLayout.PREFERRED_SIZE, 341, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(panelWest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(scrollPaneCenter, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(14, Short.MAX_VALUE))
+        );
+
         /*
         * 				This makes course name, rating, slope, and par select all
         */
@@ -187,30 +238,6 @@ public class MaintainCourses extends javax.swing.JPanel
                         });
                     }
                 });
-
-                tableDisplayCourses.setModel(new javax.swing.table.DefaultTableModel(
-                    new Object [][]
-                    {
-                        {},
-                        {},
-                        {},
-                        {}
-                    },
-                    new String []
-                    {
-
-                    }
-                ));
-                tableDisplayCourses.addMouseListener(new java.awt.event.MouseAdapter()
-                {
-                    public void mouseClicked(java.awt.event.MouseEvent evt)
-                    {
-                        tableDisplayCoursesMouseClicked(evt);
-                    }
-                });
-                scrollPaneCenter.setViewportView(tableDisplayCourses);
-
-                add(scrollPaneCenter, java.awt.BorderLayout.CENTER);
                 panelMaintainCourses = this;                              // This panel
                 //  Not needed with RXCardLayout    <RXCardLayout>
                 //      Focus textFieldCourseName for card layout
@@ -520,6 +547,7 @@ public class MaintainCourses extends javax.swing.JPanel
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel panelWest;
     private javax.swing.JScrollPane scrollPaneCenter;
     public static javax.swing.JTable tableDisplayCourses;

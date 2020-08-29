@@ -89,11 +89,16 @@ import org.todivefor.stringutils.StringUtils;
  * 
  * 0.2.0
  *      Changed POM to get rid of jlfgr as a dependency, now resides in IconUtils
+ * 
+ * 0.2.1
+ *      Made all panels freedesign making them easier to maintain
+ *      On AddScores made check for WHC year to determine whether or not to
+ *          display btnTournamentScore checkbox
  */
 public class HandicapMain extends JFrame 
 {
-        public static final String VERSION = "0.2.0";                               // Application version used in "About"
-        public static final String REVISIONDATE = "08/27/2020";                     // Revision date
+        public static final String VERSION = "0.2.1";                               // Application version used in "About"
+        public static final String REVISIONDATE = "08/29/2020";                     // Revision date
         public static final boolean TEST = false;                                   // use test preferences
 /*
  * 	Components referenced from other classes
